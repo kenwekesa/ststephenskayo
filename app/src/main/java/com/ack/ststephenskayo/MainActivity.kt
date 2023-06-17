@@ -3,7 +3,6 @@ package com.ack.ststephenskayo
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.ack.ststephenskayo.ui.login.LoginActivity
 import androidx.cardview.widget.CardView as CardView1
 
 class MainActivity : AppCompatActivity() {
