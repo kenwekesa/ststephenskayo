@@ -65,11 +65,16 @@ package com.ack.ststephenskayo
 //}
 //
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.DatePicker
+
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 
@@ -85,22 +90,40 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.runtime.Composable
 //import androidx.compose.ui.platform.setContent
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Button
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.google.firebase.firestore.FirebaseFirestore
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.Calendar
 import java.util.Locale
 
@@ -131,11 +154,11 @@ class SignInViewModel : ViewModel() {
     }
 
     fun performSignIn() {
-        var memberId: String = ""
-        generateUniqueNumber { uniquenumber ->
+        generateUniqueNumber { uniqueNumber ->
+            // Use the uniqueNumber here
+            // Rest of the function...
 
-            memberId = uniquenumber
-        }
+
 
         try {
             val db = FirebaseFirestore.getInstance()
@@ -145,19 +168,20 @@ class SignInViewModel : ViewModel() {
                 "password" to phoneNumber.value,
                 "dateJoined" to dateJoined.value,
                 "phoneNumber" to phoneNumber.value,
-                "memberNumber" to   generateUniqueNumber { uniquenumber ->
-
-                     uniquenumber
-                } // Add unique number field
+                "total_welfare_paid" to 0,
+                "total_twenty_paid" to 0,
+                "usertype" to "member",
+                "memberNumber" to   uniqueNumber // Add unique number field
                 // Add other fields as needed
             )
 
             db.collection("users")
-                .add(user)
+                .document(firstName.value)
+                .set(user)
                 .addOnSuccessListener { documentReference ->
                     // Sign-in and data submission successful
                     // Handle any necessary actions or navigate to the next screen
-                    updateLastUniqueNumber(memberId)
+                    updateLastUniqueNumber(uniqueNumber)
                     submissionStatus.value = SubmissionStatus.SUCCESS
                     submissionMessage.value = "Member added successfully!"
                 }
@@ -173,7 +197,7 @@ class SignInViewModel : ViewModel() {
             // Error handling and logging
             Log.e("Signup", "Error submitting data: ${e.message}", e)
         }
-    }
+    }}
 
     private fun updateLastUniqueNumber(newUniqueNumber: String) {
         try {
@@ -233,14 +257,15 @@ class SignInViewModel : ViewModel() {
                     callback(newUniqueNumber) // Invoke the callback with the new unique number
                 } else {
                     Log.e("Signup", "Config document not found.")
-                    callback("KYO001") // Invoke the callback with a default unique number when the document is not found
+                    callback("KYO000") // Invoke the callback with a default unique number when the document is not found
                 }
             } else {
                 Log.e("Signup", "Error getting config document: ${task.exception?.message}", task.exception)
-                callback("KYO001") // Invoke the callback with a default unique number in case of error
+                callback("KYO000") // Invoke the callback with a default unique number in case of error
             }
         }
     }
+
 
 
 
@@ -253,20 +278,46 @@ class SignInViewModel : ViewModel() {
 }
 
 
+
 @Composable
 fun SignInView(viewModel: SignInViewModel = viewModel()) {
 
-    val firstName = viewModel.firstName.value
-    val lastName = viewModel.lastName.value
-    val phoneNumber = viewModel.phoneNumber.value
+
+   // val firstName = viewModel.firstName.value
+   // val lastName = viewModel.lastName.value
+   // val phoneNumber = viewModel.phoneNumber.value
     val submissionStatus = viewModel.submissionStatus.value
     val submissionMessage = viewModel.submissionMessage.value
 
+   // val selectedDate = remember { mutableStateOf(Calendar.getInstance()) }
     val selectedDate = remember { mutableStateOf(Calendar.getInstance()) }
+    val formattedDate = remember { mutableStateOf("") }
+    val showDialog = remember { mutableStateOf(false) }
+    //val selectedDate = remember { Calendar.getInstance() }
     val dateFormatter = remember { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
-    val formattedDate = remember { mutableStateOf(dateFormatter.format(selectedDate.value.time)) }
+   // val formattedDate = remember { mutableStateOf(dateFormatter.format(selectedDate.value.time)) }
 
+    val mYear: Int
+    val mMonth: Int
+    val mDay: Int
     val context = LocalContext.current
+
+    // Initializing a Calendar
+    val mCalendar = Calendar.getInstance()
+
+    // Fetching current year, month and day
+    mYear = mCalendar.get(Calendar.YEAR)
+    mMonth = mCalendar.get(Calendar.MONTH)
+    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    var buttonText = "Date Joined"
+
+    val mDatePickerDialog = DatePickerDialog(
+        context,
+        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
+            formattedDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+        }, mYear, mMonth, mDay
+    )
 
     Column(Modifier.fillMaxWidth().padding(top = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -291,38 +342,29 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             //visualTransformation = PasswordVisualTransformation()
         )
-        OutlinedTextField(
-            value = formattedDate.value,
-            onValueChange = { formattedDate.value = it },
-            label = { Text("Date joined") },
-            readOnly = true,
-            modifier = Modifier.clickable {
-                val datePicker = DatePickerDialog(
-                    context,
-                    { _: DatePicker, selectedYear: Int, selectedMonth: Int, selectedDayOfMonth: Int ->
-                        selectedDate.value.set(selectedYear, selectedMonth, selectedDayOfMonth)
-                        formattedDate.value = dateFormatter.format(selectedDate.value.time)
-                    },
-                    selectedDate.value.get(Calendar.YEAR),
-                    selectedDate.value.get(Calendar.MONTH),
-                    selectedDate.value.get(Calendar.DAY_OF_MONTH)
-                )
-                datePicker.show()
-            }
-        )
-//        OutlinedTextField(
-//            value = formattedDate.value,
-//            onValueChange = { formattedDate.value = it },
-//            label = { Text("Date joined") },
-//            readOnly = true,
-//
-//        )
 
-//        OutlinedTextField(
-//            value = viewModel.dateJoined.value,
-//            onValueChange = { viewModel.dateJoined.value = it },
-//            label = { Text("Date joined") }
-//        )
+
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            Button(
+                onClick = { mDatePickerDialog.show() },
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color(0XFF0F9D58))
+            ) {
+                Text(text = buttonText, color = Color.White)
+            }
+            Text(
+                text = formattedDate.value,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+
+
+        viewModel.dateJoined.value = formattedDate.value;
 
 
 
