@@ -34,7 +34,7 @@ class AdminActivity : AppCompatActivity() {
         membersButton.setOnClickListener()
         {
             //s
-            val intent = Intent(this, MemberPayment::class.java)
+            val intent = Intent(this, AllMembers::class.java)
             startActivity(intent)
         }
 
