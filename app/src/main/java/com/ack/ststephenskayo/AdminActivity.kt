@@ -4,12 +4,13 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import androidx.cardview.widget.CardView
 
 class AdminActivity : AppCompatActivity() {
-    private lateinit var signUpButton: Button
-    private lateinit var paymentButton: Button
-    private lateinit var paymentStatusButton: Button
-    private lateinit var membershipButton: Button
+    private lateinit var signUpButton: CardView
+    private lateinit var paymentButton: CardView
+    private lateinit var membersButton: CardView
+    private lateinit var membershipButton: CardView
 
 
 
@@ -17,10 +18,10 @@ class AdminActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin)
 
-        signUpButton = findViewById(R.id.signup_btn);
-        paymentButton = findViewById(R.id.payment_btn);
-        paymentStatusButton = findViewById(R.id.view_payments_btn);
-        membershipButton = findViewById((R.id.view_my_membership))
+        signUpButton = findViewById(R.id.add_members_card);
+        paymentButton = findViewById(R.id.record_payment_card);
+        membersButton = findViewById(R.id.members_card);
+        membershipButton = findViewById((R.id.my_membership_card))
 
 
 
@@ -30,7 +31,7 @@ class AdminActivity : AppCompatActivity() {
             val intent = Intent(this, Signup::class.java)
             startActivity(intent)
         }
-        paymentStatusButton.setOnClickListener()
+        membersButton.setOnClickListener()
         {
             //s
             val intent = Intent(this, MemberPayment::class.java)

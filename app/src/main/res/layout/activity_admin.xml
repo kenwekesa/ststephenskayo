@@ -6,43 +6,76 @@
     android:layout_height="match_parent"
     tools:context=".AdminActivity">
 
-    <Button
-        android:id="@+id/view_my_membership"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="148dp"
-        android:layout_marginTop="556dp"
-        android:text="My membership"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/add_members_card"
+        android:layout_width="136dp"
+        android:layout_height="142dp"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="196dp"
+        app:cardElevation="@dimen/cardview_compat_inset_shadow"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/payment_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="400dp"
-        android:text="Record payments"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/add_members_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Add members" />
+    </androidx.cardview.widget.CardView>
 
-    <Button
-        android:id="@+id/signup_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="141dp"
-        android:layout_marginTop="337dp"
-        android:text="Signup"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.cardview.widget.CardView
+        android:id="@+id/members_card"
+        android:layout_width="136dp"
+        android:layout_height="142dp"
+        android:layout_marginTop="196dp"
+        android:layout_marginEnd="28dp"
+        app:cardElevation="100dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/view_payments_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="140dp"
-        android:layout_marginTop="468dp"
-        android:text="My payments"
+        <TextView
+            android:id="@+id/members_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Members" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/my_membership_card"
+        android:layout_width="136dp"
+        android:layout_height="142dp"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="44dp"
+        app:cardElevation="120dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/add_members_card">
+
+        <TextView
+            android:id="@+id/my_membership_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Members" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/record_payment_card"
+        android:layout_width="136dp"
+        android:layout_height="142dp"
+        android:layout_marginTop="44dp"
+        android:layout_marginEnd="38dp"
+        app:cardElevation="@dimen/cardview_compat_inset_shadow"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/members_card">
+
+        <TextView
+            android:id="@+id/payment_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Record payment" />
+    </androidx.cardview.widget.CardView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
