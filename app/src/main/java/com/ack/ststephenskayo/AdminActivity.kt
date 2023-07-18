@@ -1,9 +1,12 @@
 package com.ack.ststephenskayo
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.cardview.widget.CardView
 
 class AdminActivity : AppCompatActivity() {
@@ -12,9 +15,11 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var membersButton: CardView
     private lateinit var membershipButton: CardView
     private lateinit var manage_security_card: CardView
+    private lateinit var username_tv: TextView
 
 
 
+   private lateinit var sharedPrefs:SharedPreferences
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +32,17 @@ class AdminActivity : AppCompatActivity() {
         membershipButton = findViewById((R.id.my_membership_card))
         manage_security_card = findViewById(R.id.manage_security_card)
 
+        sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
 
+        val phoneNumber = sharedPrefs.getString("phoneNumber", null)
+        val memberNumber = sharedPrefs.getString("memberNumber", null)
+        val firstname = sharedPrefs.getString("firstname", null)
+        val lastname = sharedPrefs.getString("lastname", null)
+
+        username_tv = findViewById(R.id.username_tv)
+
+
+        username_tv.setText(firstname+" "+lastname)
 
         manage_security_card.setOnClickListener()
         {

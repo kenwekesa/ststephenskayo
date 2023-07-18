@@ -172,6 +172,7 @@ import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -179,6 +180,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -238,7 +240,11 @@ class PasswordManager: ComponentActivity() {
                             val user = userRepository.getUserByPhoneNumber(phoneNumber)
                             if (user != null) {
                                 showDialog.value = true
-                                dialogMessage.value = "User: ${user.name}"
+                                dialogMessage.value = "Confirm you want to change password for ${
+                                    (user.firstName+" "+user.lastNamme).uppercase(
+                                        Locale.ROOT
+                                    )
+                                }"
                             } else {
                                 showDialog.value = true
                                 dialogMessage.value = "User not found"
@@ -302,7 +308,7 @@ class UserRepository() {
         suspend fun getUserByPhoneNumber(phoneNumber: String): User? {
             return suspendCoroutine { continuation ->
                 usersCollection
-                    .whereEqualTo("phone", phoneNumber)
+                    .whereEqualTo("phoneNumber", phoneNumber)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         if (querySnapshot.isEmpty) {
@@ -321,7 +327,7 @@ class UserRepository() {
         suspend fun updateUserPassword(phoneNumber: String, password: String): Boolean {
             return suspendCoroutine { continuation ->
                 usersCollection
-                    .whereEqualTo("phone", phoneNumber)
+                    .whereEqualTo("phoneNumber", phoneNumber)
                     .get()
                     .addOnSuccessListener { querySnapshot ->
                         if (querySnapshot.isEmpty) {
@@ -350,22 +356,39 @@ class UserRepository() {
 
 
     fun DocumentSnapshot.toUser(): User {
-        val id = id
         val fname = getString("firstName") ?: ""
         val sname = getString("lastName") ?:""
-        val name = fname + " " + sname
-        val phoneNumber = getString("phone") ?: ""
+        val mname = getString("middleName")?:""
+        val phoneNumber = getString("phoneNumber") ?: ""
         val password = getString("password")?:""
+        val usertype = getString("usertype")?:""
+        val memberNumber = getString("memberNumber")?:""
+        val dateJoined = getString("dateJoined")?:""
 
-        return User(id, name, password,phoneNumber)
+
+        val total_w_paid = getLong("total_welfare_paid")?:""
+        val total_t_paid = getLong("total_twenty_paid")?:""
+
+
+
+        return User(fname,sname,password,phoneNumber,usertype,
+            total_w_paid as Long, total_t_paid as Long,memberNumber,mname, dateJoined)
     }
 
     // ...
 }
 
 data class User(
-    val id: String,
-    val name: String,
+    val firstName: String,
+    val lastNamme:String,
     var password: String,
-    val phoneNumber: String
+    val phoneNumber: String,
+    val usertype:String,
+    val total_welfare_paid:Long,
+    val total_twenty_paid:Long,
+    val memberNumber:String,
+    val middleName:String,
+    val dateJoined:String
+
 )
+

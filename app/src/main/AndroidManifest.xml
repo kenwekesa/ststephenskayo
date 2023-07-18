@@ -24,6 +24,9 @@
             android:name=".MemberView"
             android:exported="false" />
         <activity
+            android:name=".PasswordManager"
+            android:exported="false" />
+        <activity
             android:name=".AllMembers"
             android:exported="false" />
         <activity
