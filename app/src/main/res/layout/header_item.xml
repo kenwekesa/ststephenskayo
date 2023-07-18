@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/table_border">
+    android:layout_height="wrap_content">
 
     <TableRow
         android:layout_width="match_parent"
@@ -10,51 +9,37 @@
         android:padding="8dp">
 
         <TextView
-            android:id="@+id/member_name"
+            android:id="@+id/header_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="12sp"
-            android:padding="4dp"
-            android:gravity="center"
             android:text="Name"
-            android:background="@drawable/table_cell_border" />
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/member_date_joined"
+            android:id="@+id/header_date_joined"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="12sp"
-            android:padding="4dp"
-            android:gravity="center"
             android:text="Date Joined"
-            android:background="@drawable/table_cell_border" />
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/member_total_paid"
+            android:id="@+id/header_total_paid"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="12sp"
-            android:padding="4dp"
-            android:gravity="center"
             android:text="Total Paid"
-            android:background="@drawable/table_cell_border" />
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/member_balance"
+            android:id="@+id/header_balance"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="12sp"
-            android:padding="4dp"
-            android:gravity="center"
             android:text="Balance"
-            android:background="@drawable/table_cell_border" />
+            android:textStyle="bold" />
 
     </TableRow>
-
-    <!-- Add more TableRow entries if needed -->
 
 </TableLayout>

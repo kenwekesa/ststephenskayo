@@ -100,9 +100,13 @@ import androidx.compose.runtime.Composable
 //import androidx.compose.ui.platform.setContent
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -140,9 +144,12 @@ class Signup : AppCompatActivity() {
 class SignInViewModel : ViewModel() {
     val firstName = mutableStateOf("")
     val lastName = mutableStateOf("")
-
+    val middleName = mutableStateOf("")
     val phoneNumber = mutableStateOf("")
     val dateJoined = mutableStateOf("")
+
+    val birthDate = mutableStateOf("")
+    val birthMonth = mutableStateOf("")
 
 
     val submissionStatus = mutableStateOf<SubmissionStatus?>(null)
@@ -168,6 +175,9 @@ class SignInViewModel : ViewModel() {
                 "password" to phoneNumber.value,
                 "dateJoined" to dateJoined.value,
                 "phoneNumber" to phoneNumber.value,
+                "middleName" to middleName.value,
+                "birthDate" to birthDate.value,
+                "birthMonth" to birthMonth.value,
                 "total_welfare_paid" to 0,
                 "total_twenty_paid" to 0,
                 "usertype" to "member",
@@ -319,6 +329,16 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
         }, mYear, mMonth, mDay
     )
 
+
+
+    val dayOfBirthOptions = (1..31).map { it.toString() }
+    val monthOfBirthOptions = listOf(
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    )
+    val selectedDayOfBirth = remember { mutableStateOf(dayOfBirthOptions.first()) }
+    val selectedMonthOfBirth = remember { mutableStateOf(monthOfBirthOptions.first()) }
+
     Column(Modifier.fillMaxWidth().padding(top = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center)
@@ -327,6 +347,11 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             value = viewModel.firstName.value,
             onValueChange = { viewModel.firstName.value = it },
             label = { Text("First Name") }
+        )
+        OutlinedTextField(
+            value = viewModel.middleName.value,
+            onValueChange = { viewModel.middleName.value = it },
+            label = { Text("Middle Name") }
         )
         OutlinedTextField(
             value = viewModel.lastName.value,
@@ -364,7 +389,39 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
         }
 
 
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            DropdownMenu(
+                expanded = false, // Change to true to initially show the dropdown
+                onDismissRequest = { /* Dismiss the dropdown */ },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                dayOfBirthOptions.forEach { day ->
+                    DropdownMenuItem(onClick = { selectedDayOfBirth.value = day }) {
+                        Text(text = day)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            DropdownMenu(
+                expanded = false, // Change to true to initially show the dropdown
+                onDismissRequest = { /* Dismiss the dropdown */ },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                monthOfBirthOptions.forEach { month ->
+                    DropdownMenuItem(onClick = { selectedMonthOfBirth.value = month }) {
+                        Text(text = month)
+                    }
+                }
+            }
+        }
+
+
+
+
         viewModel.dateJoined.value = formattedDate.value;
+        viewModel.birthMonth.value = selectedMonthOfBirth.value
+        viewModel.birthDate.value = selectedDayOfBirth.value
 
 
 

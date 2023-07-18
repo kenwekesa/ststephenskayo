@@ -11,6 +11,9 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var paymentButton: CardView
     private lateinit var membersButton: CardView
     private lateinit var membershipButton: CardView
+    private lateinit var manage_security_card: CardView
+
+
 
 
 
@@ -22,9 +25,15 @@ class AdminActivity : AppCompatActivity() {
         paymentButton = findViewById(R.id.record_payment_card);
         membersButton = findViewById(R.id.members_card);
         membershipButton = findViewById((R.id.my_membership_card))
+        manage_security_card = findViewById(R.id.manage_security_card)
 
 
 
+        manage_security_card.setOnClickListener()
+        {
+            val intent = Intent(this, PasswordManager::class.java)
+            startActivity(intent)
+        }
         signUpButton.setOnClickListener()
         {
             //s

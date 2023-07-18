@@ -6,75 +6,135 @@
     android:layout_height="match_parent"
     tools:context=".MembersActivity">
 
-    <Button
-        android:id="@+id/payment_btn"
-        android:layout_width="165dp"
-        android:layout_height="73dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="103dp"
-        android:text="Statements"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/member_no_lbl" />
-
-    <Button
-        android:id="@+id/view_payments_btn"
-        android:layout_width="383dp"
-        android:layout_height="69dp"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="121dp"
-        android:layout_marginEnd="16dp"
-        android:text="Payment status"
-        app:layout_constraintEnd_toEndOf="parent"
+    <TextView
+        android:id="@+id/user_name_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="122dp"
+        android:layout_marginTop="79dp"
+        android:textSize="20sp"
+        android:text="---Admin side---"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/my_payments_btn"
-        android:layout_width="148dp"
-        android:layout_height="72dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="143dp"
-        android:text="My payments"
-        app:layout_constraintStart_toEndOf="@+id/payment_btn"
-        app:layout_constraintTop_toBottomOf="@+id/name_tv" />
-
-    <TextView
-        android:id="@+id/name_lbl"
-        android:layout_width="wrap_content"
+    <GridLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginTop="20dp"
-        android:text="Name:"
+        android:layout_marginTop="56dp"
+        android:columnCount="3"
+        android:rowCount="3"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_payments_btn" />
+        app:layout_constraintTop_toBottomOf="@+id/user_name_view">
 
-    <TextView
-        android:id="@+id/name_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="20dp"
-        android:text="Kennedy Wekesa"
-        app:layout_constraintStart_toEndOf="@+id/name_lbl"
-        app:layout_constraintTop_toBottomOf="@+id/view_payments_btn" />
 
-    <TextView
-        android:id="@+id/member_no_lbl"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="76dp"
-        android:layout_marginTop="19dp"
-        android:text="Membe No:"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_lbl" />
 
-    <TextView
-        android:id="@+id/member_no_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="19dp"
-        android:text="KYO001"
-        app:layout_constraintStart_toEndOf="@+id/member_no_lbl"
-        app:layout_constraintTop_toBottomOf="@+id/name_tv" />
+
+
+
+
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/my_profile_card"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_margin="4dp"
+            app:cardElevation="100dp"
+            android:layout_columnWeight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/baseline_person_pin_24" />
+
+                <TextView
+                    android:id="@+id/my_membership_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="My profile"
+                    android:gravity="center"
+                    android:textSize="10sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/my_payment_card"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_margin="4dp"
+            app:cardElevation="100dp"
+            android:layout_columnWeight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/payments" />
+
+                <TextView
+                    android:id="@+id/record_payment_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="My payments"
+                    android:gravity="center"
+                    android:textSize="10sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/my_status_card"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_margin="4dp"
+            app:cardElevation="100dp"
+            android:layout_columnWeight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/more" />
+
+                <TextView
+                    android:id="@+id/more_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="My payment status"
+                    android:gravity="center"
+                    android:textSize="10sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+
+
+
+        <!-- Add the remaining card views here with reduced font size and image size -->
+
+    </GridLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
