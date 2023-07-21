@@ -13,6 +13,7 @@ class MembersActivity : AppCompatActivity() {
     private lateinit var my_profile_card: CardView
     private lateinit var my_payments_card: CardView
     private lateinit var my_status_card: CardView
+    private lateinit var leaders_card: CardView
 
     private lateinit var username_view: TextView
 
@@ -30,7 +31,7 @@ class MembersActivity : AppCompatActivity() {
         my_profile_card = findViewById(R.id.my_profile_card);
         my_payments_card = findViewById(R.id.my_payment_card);
         my_status_card = findViewById(R.id.my_status_card);
-
+        leaders_card = findViewById(R.id.leaders_card)
         username_view = findViewById(R.id.user_name_view)
 
         sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
@@ -46,6 +47,11 @@ class MembersActivity : AppCompatActivity() {
       username_view.setText(firstname+" "+lastname)
 
 
+        leaders_card.setOnClickListener()
+        {
+            val payment_intent = Intent(this, Leaders::class.java)
+            startActivity(payment_intent)
+        }
         my_payments_card.setOnClickListener()
         {
             val payment_intent = Intent(this, MemberPayment::class.java)

@@ -258,7 +258,6 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
             value = viewModel.password.value,
             onValueChange = { viewModel.password.value = it },
             label = { Text("Password") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             visualTransformation = PasswordVisualTransformation(),
         )
 
