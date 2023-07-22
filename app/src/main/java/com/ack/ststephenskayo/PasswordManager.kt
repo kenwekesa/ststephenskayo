@@ -3,6 +3,7 @@ package com.ack.ststephenskayo
 
 
 
+import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -144,6 +145,9 @@ fun PasswordManagerScreen(context: Context) {
                         Button(
                             onClick = {
                                 showSuccessDialog.value = false
+                                if (context is Activity) {
+                                    context.finish()
+                                }
                                 // Close the activity when the user clicks "OK"
                                 // You can replace this with the appropriate code to close the activity
                             }
@@ -165,6 +169,10 @@ fun showresetSuccessMessage(context: Context) {
         .setMessage("The user account successfully reset. Login with phone number as your new password")
         .setPositiveButton("OK") { _, _ ->
             // Perform additional actions or close the dialog if needed
+
+            if (context is Activity) {
+                context.finish()
+            }
         }
         .create()
 
