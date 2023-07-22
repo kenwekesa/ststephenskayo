@@ -144,6 +144,8 @@ class Signup : AppCompatActivity() {
 class SignInViewModel : ViewModel() {
     val firstName = mutableStateOf("")
     val lastName = mutableStateOf("")
+    val fellowship = mutableStateOf("")
+
     val middleName = mutableStateOf("")
     val phoneNumber = mutableStateOf("")
     val dateJoined = mutableStateOf("")
@@ -172,6 +174,7 @@ class SignInViewModel : ViewModel() {
             val user = hashMapOf(
                 "firstName" to firstName.value,
                 "lastName" to lastName.value,
+                "fellowship" to fellowship.value,
                 "password" to phoneNumber.value,
                 "dateJoined" to dateJoined.value,
                 "phoneNumber" to phoneNumber.value,
@@ -368,6 +371,12 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             //visualTransformation = PasswordVisualTransformation()
         )
 
+        OutlinedTextField(
+            value = viewModel.fellowship.value,
+            onValueChange = { viewModel.fellowship.value = it },
+            label = { Text("Fellowship") }
+        )
+
 
 
         Row(
@@ -462,5 +471,8 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
         }
     }
 }
+
+
+
 
 

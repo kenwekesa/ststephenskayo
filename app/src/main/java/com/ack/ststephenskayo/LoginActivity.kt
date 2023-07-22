@@ -194,8 +194,8 @@ class LoginViewModel : ViewModel() {
                     firstname = document.getString("firstName").toString()
                     lastname = document.getString("lastName").toString()
 
-                    user_activated = document.getBoolean("user_activated") as Boolean
-                    fellowship = document.getString("fellowship").toString()
+                    user_activated = document.getBoolean("user_activated") ?: false
+                    fellowship = document.getString("fellowship") ?: "No fellowship allocated"
                     dateJoined = document.getString("dateJoined").toString()
 
 
@@ -264,7 +264,7 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 128.dp) // Add considerable margin from the top
+                .padding(top = 78.dp) // Add considerable margin from the top
                 .padding(horizontal = 16.dp), // Add horizontal padding
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
