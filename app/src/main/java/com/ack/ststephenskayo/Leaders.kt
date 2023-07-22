@@ -14,6 +14,7 @@ class Leaders : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        super.setTitle("Kayo leaders")
         setContentView(R.layout.activity_leaders)
 
         // Initialize the RecyclerView and adapter

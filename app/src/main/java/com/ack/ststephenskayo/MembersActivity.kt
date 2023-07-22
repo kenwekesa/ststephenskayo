@@ -65,5 +65,11 @@ class MembersActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        my_profile_card.setOnClickListener()
+        {
+            val intent = Intent(this, Profile::class.java)
+            startActivity(intent)
+        }
+
     }
 }

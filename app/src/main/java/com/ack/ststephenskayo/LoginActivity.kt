@@ -110,7 +110,7 @@ class LoginActivity : AppCompatActivity() {
         //observeCurrentUser()
     }
 
-    fun saveUserDetails(phoneNumber: String, password: String, memberNumber:String,usertype: String,firstname:String,lastname:String) {
+    fun saveUserDetails(phoneNumber: String, password: String, memberNumber:String,usertype: String,firstname:String,lastname:String, fellowship:String, dateJoined:String) {
         val editor = sharedPrefs.edit()
         editor.putString("phoneNumber", phoneNumber)
         editor.putString("password", password)
@@ -118,6 +118,8 @@ class LoginActivity : AppCompatActivity() {
         editor.putString("lastname", lastname)
         editor.putString("memberNumber", memberNumber)
         editor.putString("usertype",usertype)
+        editor.putString("date_joined", dateJoined)
+        editor.putString("fellowship", fellowship)
         editor.apply()
     }
 
@@ -149,6 +151,10 @@ class LoginViewModel : ViewModel() {
     var usertype: String =""
     var firstname:String =""
     var lastname:String=""
+    var fellowship:String=""
+    var dateJoined:String=""
+
+    var user_activated:Boolean = false
 
     // Other functions...
 
@@ -188,13 +194,19 @@ class LoginViewModel : ViewModel() {
                     firstname = document.getString("firstName").toString()
                     lastname = document.getString("lastName").toString()
 
+                    user_activated = document.getBoolean("user_activated") as Boolean
+                    fellowship = document.getString("fellowship").toString()
+                    dateJoined = document.getString("dateJoined").toString()
+
+
+
                     // Update the value of the 'usertype' mutable state
                         // setUsertype(usertype) // Set the usertype in the ViewModel
 
                     loginStatus.value = LoginStatus.SUCCESS
                     isLoading.value = true
-                    loginActivity.saveUserDetails(phoneNumber.value, password.value, memberNumber,usertype,firstname,lastname )
-                   navigateToNextActivity(context, usertype.toString())
+                    loginActivity.saveUserDetails(phoneNumber.value, password.value, memberNumber,usertype,firstname,lastname,fellowship, dateJoined)
+                   navigateToNextActivity(context, usertype, user_activated)
 
                 }
             }
@@ -203,23 +215,25 @@ class LoginViewModel : ViewModel() {
             }
     }
 
-    private fun navigateToNextActivity(context: Context, usertype:String) {
+    private fun navigateToNextActivity(context: Context, usertype:String, user_activated:Boolean) {
         //val int = Intent()
-        if(usertype == "admin") {
-            val intent = Intent(context, AdminActivity::class.java);
-            context.startActivity(intent)
+        if(user_activated) {
+            if (usertype == "admin") {
+                val intent = Intent(context, AdminActivity::class.java);
+                context.startActivity(intent)
+            } else if (usertype == "member") {
+                val intent = Intent(context, MembersActivity::class.java);
+                context.startActivity(intent)
+            }
         }
-        else if(usertype == "member")
+        else
         {
-            val intent = Intent(context, MembersActivity::class.java);
+            val intent = Intent(context, SetPassword::class.java);
             context.startActivity(intent)
         }
     }
 
 }
-
-
-
 @Composable
 fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
     val loginStatus by viewModel.loginStatus.observeAsState()
@@ -243,42 +257,111 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
         }
     }
 
-    Column(
-        Modifier.fillMaxWidth().padding(top = 64.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        OutlinedTextField(
-            value = viewModel.phoneNumber.value,
-            onValueChange = { viewModel.phoneNumber.value = it },
-            label = { Text("Phone Number") },
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-        )
-        OutlinedTextField(
-            value = viewModel.password.value,
-            onValueChange = { viewModel.password.value = it },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation(),
-        )
-
-        Button(
-            onClick = { viewModel.performLogin(context) },
-            modifier = Modifier.fillMaxWidth()
-                .padding(top = 16.dp)
-                .padding(horizontal = 18.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 128.dp) // Add considerable margin from the top
+                .padding(horizontal = 16.dp), // Add horizontal padding
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (isLoading) {
-                CircularProgressIndicator()
-            } else {
-                Text("Log In")
-            }
-        }
+            OutlinedTextField(
+                value = viewModel.phoneNumber.value,
+                onValueChange = { viewModel.phoneNumber.value = it },
+                label = { Text("Phone Number") },
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            )
+            OutlinedTextField(
+                value = viewModel.password.value,
+                onValueChange = { viewModel.password.value = it },
+                label = { Text("Password") },
+                visualTransformation = PasswordVisualTransformation(),
+            )
 
-        if (loginStatusMessage.isNotEmpty()) {
-            Text(loginStatusMessage)
+            Button(
+                onClick = { viewModel.performLogin(context) },
+                modifier = Modifier.fillMaxWidth()
+                    .padding(top = 16.dp)
+                    .padding(horizontal = 18.dp)
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator()
+                } else {
+                    Text("Log In")
+                }
+            }
+
+            if (loginStatusMessage.isNotEmpty()) {
+                Text(loginStatusMessage)
+            }
         }
     }
 }
+
+
+//
+//@Composable
+//fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
+//    val loginStatus by viewModel.loginStatus.observeAsState()
+//    var passwordVisibility by remember { mutableStateOf(false) }
+//    var loginStatusMessage by remember { mutableStateOf("") }
+//    val isLoading = loginStatus == LoginViewModel.LoginStatus.PENDING
+//
+//    viewModel.setLoginActivity(context as LoginActivity)
+//
+//    LaunchedEffect(loginStatus) {
+//        when (loginStatus) {
+//            LoginViewModel.LoginStatus.SUCCESS -> {
+//                loginStatusMessage = "Login successful!"
+//            }
+//            LoginViewModel.LoginStatus.ERROR -> {
+//                loginStatusMessage = "Invalid username or password"
+//            }
+//            else -> {
+//                loginStatusMessage = ""
+//            }
+//        }
+//    }
+//
+//    Column(
+//        Modifier.fillMaxWidth().padding(top = 64.dp),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//        verticalArrangement = Arrangement.Center
+//    ) {
+//        OutlinedTextField(
+//            value = viewModel.phoneNumber.value,
+//            onValueChange = { viewModel.phoneNumber.value = it },
+//            label = { Text("Phone Number") },
+//            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+//        )
+//        OutlinedTextField(
+//            value = viewModel.password.value,
+//            onValueChange = { viewModel.password.value = it },
+//            label = { Text("Password") },
+//            visualTransformation = PasswordVisualTransformation(),
+//        )
+//
+//        Button(
+//            onClick = { viewModel.performLogin(context) },
+//            modifier = Modifier.fillMaxWidth()
+//                .padding(top = 16.dp)
+//                .padding(horizontal = 18.dp)
+//        ) {
+//            if (isLoading) {
+//                CircularProgressIndicator()
+//            } else {
+//                Text("Log In")
+//            }
+//        }
+//
+//        if (loginStatusMessage.isNotEmpty()) {
+//            Text(loginStatusMessage)
+//        }
+//    }
+//}
 
 //
 //@Composable
