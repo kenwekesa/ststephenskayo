@@ -4,6 +4,7 @@ package com.ack.ststephenskayo
 
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.SharedPreferences
@@ -65,7 +66,7 @@ class SetPassword: ComponentActivity() {
         val firstname = sharedPrefs.getString("firstname", null)
         val lastname = sharedPrefs.getString("lastname", null)
         setContent {
-            PasswordManagerScreenn(phoneNumber)
+            PasswordManagerScreenn(phoneNumber, context = this@SetPassword)
         }
 
     }
@@ -73,7 +74,7 @@ class SetPassword: ComponentActivity() {
 
 
 @Composable
-fun PasswordManagerScreenn(phoneNumber: String) {
+fun PasswordManagerScreenn(phoneNumber: String, context:Context) {
     val passwordState = remember { mutableStateOf("") }
     val confirmPasswordState = remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
@@ -154,11 +155,9 @@ fun PasswordManagerScreenn(phoneNumber: String) {
                                         password
                                     )
                                     if (result) {
-                                        showDialog.value = false
-                                        showSuccessDialog.value = true // Show success dialog
+                                       showsetSuccessMessage(context)// Show success dialog
                                     } else {
-                                        showDialog.value = false
-                                        dialogMessage.value = "Error updating password"
+                                       showsetFailureMessage(context)
                                     }
                                 }
                             }
@@ -345,6 +344,50 @@ fun PasswordManagerScreenn(phoneNumber: String) {
 
 
 
+fun showsetSuccessMessage(context: Context) {
+    val alertDialog = androidx.appcompat.app.AlertDialog.Builder(context)
+        .setTitle("Password change Success")
+        .setMessage("Your password has ben successfully changed, proceed to login with your new password!")
+        .setPositiveButton("OK") { _, _ ->
+            // Perform additional actions or close the dialog if needed
+
+            if (context is Activity) {
+                context.finish()
+            }
+        }
+        .create()
+
+    alertDialog.show()
+}
+
+
+
+
+private fun showNoUserMessage(context: Context) {
+    val alertDialog = androidx.appcompat.app.AlertDialog.Builder(context)
+        .setTitle("User Not Found")
+        .setMessage("No user found with the provided phone number.")
+        .setPositiveButton("OK") { _, _ ->
+            // Perform additional actions or close the dialog if needed
+        }
+        .create()
+
+    alertDialog.show()
+}
+
+
+
+private fun showsetFailureMessage(context: Context) {
+    val alertDialog = androidx.appcompat.app.AlertDialog.Builder(context)
+        .setTitle("Error Seting")
+        .setMessage("An error occured while setting the password, try again later.")
+        .setPositiveButton("OK") { _, _ ->
+            // Perform additional actions or close the dialog if needed
+        }
+        .create()
+
+    alertDialog.show()
+}
 
 
 class UserRepositor() {
@@ -402,6 +445,8 @@ class UserRepositor() {
             }
         return change_flag
     }
+
+
 
 
 
