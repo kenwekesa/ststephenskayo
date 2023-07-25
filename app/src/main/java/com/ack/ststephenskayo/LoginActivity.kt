@@ -235,7 +235,7 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 78.dp) // Add considerable margin from the top
+                .padding(top = 50.dp) // Add considerable margin from the top
                 .padding(horizontal = 16.dp), // Add horizontal padding
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

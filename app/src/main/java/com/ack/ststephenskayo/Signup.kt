@@ -1,69 +1,5 @@
 package com.ack.ststephenskayo
-//
-//import androidx.appcompat.app.AppCompatActivity
-//import android.os.Bundle
-//import androidx.activity.compose.setContent
-//import androidx.compose.foundation.layout.Column
-//import androidx.compose.runtime.Composable
-//import androidx.compose.runtime.mutableStateOf
-//import androidx.lifecycle.ViewModel
-//import ch.benlu.composeform.FieldState
-//import ch.benlu.composeform.Form
-//import ch.benlu.composeform.FormField
-//
-//import ch.benlu.composeform.fields.*;
-//import ch.benlu.composeform.validators.MinLengthValidator
-//
-//import androidx.lifecycle.viewmodel.compose.viewModel
-//
-//
-//
-//
-//
-//class Signup : AppCompatActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//
-//        val viewModel = MainViewModel() // Create an instance of the MainViewModel
-//
-//        setContent {
-//            SingleTextField(viewModel = viewModel) // Pass the view model to the composable function
-//        }
-//
-//    }
-//
-//
-//}
-//
-//class MainForm : Form() {
-//    override fun self(): Form {
-//        return this
-//    }
-//
-//    @FormField
-//    val name = FieldState(
-//        state = mutableStateOf<String?>(null),
-//        validators = mutableListOf(
-//            MinLengthValidator(4, "The name must be at least 4 characters")
-//        )
-//    )
-//}
-//
-//class MainViewModel : ViewModel() {
-//    var form = MainForm()
-//}
-//
-//@Composable
-//fun SingleTextField(viewModel: MainViewModel = viewModel()) {
-//    Column {
-//        TextField(
-//            label = "Name",
-//            form = viewModel.form,
-//            fieldState = viewModel.form.name,
-//        ).Field()
-//    }
-//}
-//
+
 
 import android.app.Activity
 import android.app.DatePickerDialog
@@ -78,7 +14,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -90,10 +28,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AlertDialog
 import androidx.compose.runtime.Composable
@@ -110,6 +51,7 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
@@ -342,10 +284,15 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
     val selectedDayOfBirth = remember { mutableStateOf(dayOfBirthOptions.first()) }
     val selectedMonthOfBirth = remember { mutableStateOf(monthOfBirthOptions.first()) }
 
-    Column(Modifier.fillMaxWidth().padding(top = 64.dp),
+    // Variables for dropdown visibility
+    // Variables for dropdown visibility
+    var dayMenuVisible by remember {mutableStateOf(false)}
+    var monthMenuVisible by remember {mutableStateOf(false)}
+
+    Column(
+        Modifier.fillMaxWidth().padding(top = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center)
-    {
+    ) {
         OutlinedTextField(
             value = viewModel.firstName.value,
             onValueChange = { viewModel.firstName.value = it },
@@ -377,8 +324,7 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             label = { Text("Fellowship") }
         )
 
-
-
+        // Date Joined Button and Text
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(vertical = 8.dp)
@@ -397,43 +343,82 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             )
         }
 
-
-
+        // Dropdown Menus
         Row(verticalAlignment = Alignment.CenterVertically) {
-            DropdownMenu(
-                expanded = false, // Change to true to initially show the dropdown
-                onDismissRequest = { /* Dismiss the dropdown */ },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                dayOfBirthOptions.forEach { day ->
-                    DropdownMenuItem(onClick = { selectedDayOfBirth.value = day }) {
-                        Text(text = day)
+            Text(
+                fontSize = 11.sp,
+                text ="Birth date and month: "
+            )
+            Box {
+                OutlinedButton(
+                    onClick = { dayMenuVisible = true },
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Text(selectedDayOfBirth.value ?: "Day")
+                }
+                DropdownMenu(
+                    expanded = dayMenuVisible,
+                    onDismissRequest = { dayMenuVisible = false },
+                    modifier = Modifier
+                        .width(100.dp) // Adjust the width here
+                        .height(200.dp) // Adjust the height here
+                ) {
+                    dayOfBirthOptions.forEach { day ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedDayOfBirth.value = day
+                                dayMenuVisible = false
+                            }
+                        ) {
+                            Text(text = day)
+                        }
                     }
                 }
             }
-            Spacer(modifier = Modifier.size(8.dp))
-            DropdownMenu(
-                expanded = false, // Change to true to initially show the dropdown
-                onDismissRequest = { /* Dismiss the dropdown */ },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                monthOfBirthOptions.forEach { month ->
-                    DropdownMenuItem(onClick = { selectedMonthOfBirth.value = month }) {
-                        Text(text = month)
+            Box {
+                OutlinedButton(
+                    onClick = { monthMenuVisible = true }
+                ) {
+                    Text(selectedMonthOfBirth.value ?: "Month")
+                }
+                DropdownMenu(
+                    expanded = monthMenuVisible,
+                    onDismissRequest = { monthMenuVisible = false },
+                    modifier = Modifier
+                        .width(100.dp) // Adjust the width here
+                        .height(200.dp) // Adjust the height here
+                ) {
+                    monthOfBirthOptions.forEach { month ->
+                        DropdownMenuItem(
+                            onClick = {
+                                selectedMonthOfBirth.value = month
+                                monthMenuVisible = false
+                            }
+                        ) {
+                            Text(text = month)
+                        }
                     }
                 }
             }
         }
 
 
+        Button(
+            onClick = {
+                // Perform sign-in logic here
+                viewModel.performSignIn()
+            },
+            modifier = Modifier.fillMaxWidth().
+            padding(top = 16.dp).
+            padding(horizontal = 40.dp)
+        ) {
+            Text("Add Member")
+        }
 
 
         viewModel.dateJoined.value = formattedDate.value;
         viewModel.birthMonth.value = selectedMonthOfBirth.value
         viewModel.birthDate.value = selectedDayOfBirth.value
-
-
-
 
         if (submissionStatus == SignInViewModel.SubmissionStatus.SUCCESS) {
             AlertDialog(
@@ -458,21 +443,7 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                 }
             )
         }
-        Button(
-            onClick = {
-                // Perform sign-in logic here
-                viewModel.performSignIn()
-            },
-            modifier = Modifier.fillMaxWidth().
-            padding(top = 16.dp).
-            padding(horizontal = 40.dp)
-        ) {
-            Text("Add Member")
-        }
     }
 }
-
-
-
 
 
