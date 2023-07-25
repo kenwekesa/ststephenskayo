@@ -17,9 +17,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -234,37 +238,71 @@ class UserRepository() {
             }
         }
 
-        suspend fun updateUserPassword(phoneNumber: String, password: String): Boolean {
-            var change_flag: Boolean = false
+//        suspend fun updateUserPassword(phoneNumber: String, password: String): Boolean {
+//            var change_flag: Boolean = false
+//
+//            val updates = hashMapOf<String, Any>(
+//                "password" to phoneNumber,
+//                "user_activated" to false
+//            )
+//            usersCollection
+//                .whereEqualTo("phoneNumber", phoneNumber)
+//                .get()
+//                .addOnSuccessListener { querySnapshot ->
+//                    for (document in querySnapshot.documents) {
+//                        document.reference.update(updates)
+//                            .addOnSuccessListener {
+//                                // Update successful
+//                                change_flag = true
+//                            }
+//                            .addOnFailureListener { e ->
+//                                // Handle any errors
+//                                println("Error resetting account $e")
+//                            }
+//                    }
+//                }
+//                .addOnFailureListener { e ->
+//                    // Handle any errors
+//                    println("Error getting documents: $e")
+//                }
+//          return change_flag
+//        }
 
-            val updates = hashMapOf<String, Any>(
-                "password" to phoneNumber,
-                "user_activated" to false
+    fun Any?.toAny(): Any? {
+        return when (this) {
+            is String,
+            is Number,
+            is Boolean -> this
+            is Map<*, *> -> this.mapValues { it.value.toAny() }
+            is List<*> -> this.map { it.toAny() }
+            is DocumentReference -> this
+            is FieldValue -> this
+            else -> null
+        }
+    }
+    suspend fun updateUserPassword(phoneNumber: String, password: String): Boolean {
+        try {
+            val updates = hashMapOf(
+                "password" to phoneNumber.toAny(),
+                "user_activated" to false.toAny()
             )
-            usersCollection
+
+            val querySnapshot = usersCollection
                 .whereEqualTo("phoneNumber", phoneNumber)
                 .get()
-                .addOnSuccessListener { querySnapshot ->
-                    for (document in querySnapshot.documents) {
-                        document.reference.update(updates)
-                            .addOnSuccessListener {
-                                // Update successful
-                                change_flag = true
-                            }
-                            .addOnFailureListener { e ->
-                                // Handle any errors
-                                println("Error resetting account $e")
-                            }
-                    }
-                }
-                .addOnFailureListener { e ->
-                    // Handle any errors
-                    println("Error getting documents: $e")
-                }
-          return change_flag
+                .await() // Use await() to suspend and wait for the result
+
+            for (document in querySnapshot.documents) {
+                document.reference.update(updates).await() // Suspend and wait for the update to complete
+            }
+
+            return true // If the loop completes without any exceptions, the updates were successful
+        } catch (e: FirebaseFirestoreException) {
+            // Handle any errors
+            println("Error updating user password: $e")
+            return false
         }
-
-
+    }
 
     fun DocumentSnapshot.toUser(): User {
         val fname = getString("firstName") ?: ""

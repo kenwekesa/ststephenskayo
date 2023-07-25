@@ -36,8 +36,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -217,130 +220,6 @@ fun PasswordManagerScreenn(phoneNumber: String, context:Context) {
 }
 
 
-//
-//@Composable
-//fun PasswordManagerScreenn(phoneNumber: String) {
-//    val phoneNumberState = remember { mutableStateOf("") }
-//    val passwordState = remember { mutableStateOf("") }
-//    val confirmPasswordState = remember { mutableStateOf("") }
-//    val showDialog = remember { mutableStateOf(false) }
-//    val dialogMessage = remember { mutableStateOf("") }
-//
-//    val userRepository = UserRepositor()
-//
-//    val scope = rememberCoroutineScope()
-//
-//    Box(
-//        modifier = Modifier.fillMaxSize(),
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Column(
-//            modifier = Modifier.padding(16.dp),
-//            horizontalAlignment = Alignment.CenterHorizontally
-//        ) {
-//            OutlinedTextField(
-//                value = passwordState.value,
-//                onValueChange = { passwordState.value = it },
-//                label = { Text("Password") },
-//                visualTransformation = PasswordVisualTransformation()
-//            )
-//            Spacer(modifier = Modifier.height(8.dp))
-//            OutlinedTextField(
-//                value = confirmPasswordState.value,
-//                onValueChange = { confirmPasswordState.value = it },
-//                label = { Text("Confirm Password") },
-//                visualTransformation = PasswordVisualTransformation()
-//            )
-//            Spacer(modifier = Modifier.height(16.dp))
-//            Button(
-//                onClick = {
-//                    val password = passwordState.value
-//                    val confirmPassword = confirmPasswordState.value
-//
-//                    if (password == confirmPassword) {
-//                        scope.launch {
-//                            val user = userRepository.getUserByPhoneNumber(phoneNumber)
-//                            if (user != null) {
-//                                showDialog.value = true
-//                                dialogMessage.value = "Confirm you want to set password for ${
-//                                    (user.firstName + " " + user.lastNamme).uppercase(
-//                                        Locale.ROOT
-//                                    )
-//                                }"
-//                            } else {
-//                                showDialog.value = true
-//                                dialogMessage.value = "User not found"
-//                            }
-//                        }
-//                    } else {
-//                        showDialog.value = true
-//                        dialogMessage.value = "Password and Confirm Password do not match"
-//                    }
-//                },
-//                modifier = Modifier.align(Alignment.CenterHorizontally)
-//            ) {
-//                Text("Change Password")
-//            }
-//
-//            if (showDialog.value) {
-//                AlertDialog(
-//                    onDismissRequest = { showDialog.value = false },
-//                    title = { Text("Alert") },
-//                    text = { Text(dialogMessage.value) },
-//                    confirmButton = {
-//                        Button(
-//                            onClick = {
-//                                scope.launch {
-//                                    // val phoneNumber = phoneNumberState.value
-//                                    val password = passwordState.value
-//
-//                                    val result = userRepository.updateUserPassword(
-//                                        phoneNumber,
-//                                        password
-//                                    )
-//                                    if (result) {
-//                                        showDialog.value = true
-//                                        dialogMessage.value = "Password updated successfully"
-//                                    } else {
-//                                        showDialog.value = false
-//                                        dialogMessage.value = "Error updating password"
-//                                    }
-//                                }
-//                            }
-//                        ) {
-//                            Text("Confirm")
-//                        }
-//                    },
-//                    dismissButton = {
-//                        Button(
-//                            onClick = { showDialog.value = false }
-//                        ) {
-//                            Text("Dismiss")
-//                        }
-//                    }
-//                )
-//            }
-//        }
-//
-//        // Title bar
-//        TopAppBar(
-//            title = {
-//                Text(
-//                    text = "Set New password",
-//                    fontSize = 18.sp,
-//                    textAlign = TextAlign.Center,
-//                    modifier = Modifier.fillMaxWidth()
-//                )
-//            },
-//            backgroundColor = MaterialTheme.colors.primary,
-//            contentColor = Color.White,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(16.dp)
-//                .align(Alignment.TopCenter)
-//        )
-//    }
-//}
 
 
 
@@ -414,37 +293,44 @@ class UserRepositor() {
         }
     }
 
-    suspend fun updateUserPassword(phoneNumber: String, password: String): Boolean {
-        var change_flag: Boolean = false
 
-        val updates = hashMapOf<String, Any>(
-            "password" to password,
-            "user_activated" to true
-        )
-        usersCollection
-            .whereEqualTo("phoneNumber", phoneNumber)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                for (document in querySnapshot.documents) {
-
-
-                    document.reference.update(updates)
-                        .addOnSuccessListener {
-                            // Update successful
-                            change_flag = true
-                        }
-                        .addOnFailureListener { e ->
-                            // Handle any errors
-                            println("Error updating total welfare paid: $e")
-                        }
-                }
-            }
-            .addOnFailureListener { e ->
-                // Handle any errors
-                println("Error getting documents: $e")
-            }
-        return change_flag
+    fun Any?.toAny(): Any? {
+        return when (this) {
+            is String,
+            is Number,
+            is Boolean -> this
+            is Map<*, *> -> this.mapValues { it.value.toAny() }
+            is List<*> -> this.map { it.toAny() }
+            is DocumentReference -> this
+            is FieldValue -> this
+            else -> null
+        }
     }
+    suspend fun updateUserPassword(phoneNumber: String, password: String): Boolean {
+        try {
+            val updates = hashMapOf(
+                "password" to password.toAny(),
+                "user_activated" to true.toAny()
+            )
+
+            val querySnapshot = usersCollection
+                .whereEqualTo("phoneNumber", phoneNumber)
+                .get()
+                .await() // Use await() to suspend and wait for the result
+
+            for (document in querySnapshot.documents) {
+                document.reference.update(updates).await() // Suspend and wait for the update to complete
+            }
+
+            return true // If the loop completes without any exceptions, the updates were successful
+        } catch (e: FirebaseFirestoreException) {
+            // Handle any errors
+            println("Error updating user password: $e")
+            return false
+        }
+    }
+
+
 
 
 
