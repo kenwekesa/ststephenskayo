@@ -1,4 +1,6 @@
 package com.ack.ststephenskayo
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
@@ -14,11 +16,16 @@ import java.util.Locale
 class AllMembers : AppCompatActivity() {
     private val db = FirebaseFirestore.getInstance()
     private val membersCollection = db.collection("users")
-
+    lateinit var sharedPrefs:SharedPreferences
+    lateinit var usertype:String
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all_members)
+        sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+
+        // Retrieve the saved values from SharedPreferences
+        usertype = sharedPrefs.getString("usertype", null) as String
 
         membersCollection.get()
             .addOnSuccessListener { querySnapshot ->
@@ -31,7 +38,11 @@ class AllMembers : AppCompatActivity() {
 
                     val name = fname + " " + sname;
                     val dateJoined = document.getString("dateJoined") ?: ""
-                    val totalPaid = document.getDouble("total_welfare_paid") ?: 0.0
+                    val totalPaid = when (usertype) {
+                        "welfare_admin" -> document.getDouble("total_welfare_paid") ?: 0.0
+                        "twenty_admin" -> document.getDouble("total_twenty_paid") ?: 0.0
+                        else -> 0.0
+                    }
 
                     val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
 

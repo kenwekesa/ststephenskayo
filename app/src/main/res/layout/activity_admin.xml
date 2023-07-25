@@ -80,7 +80,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Manage Security"
+                    android:text="Manage Accouts"
                     android:gravity="center"
                     android:textSize="10sp" />
 
@@ -111,7 +111,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Check Member Welfare"
+                    android:text="Member payment status"
                     android:gravity="center"
                     android:textSize="10sp" />
 

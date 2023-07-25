@@ -2,9 +2,12 @@ package com.ack.ststephenskayo
 
 
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.DatePicker
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog as AD
@@ -33,11 +36,14 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class Payment : AppCompatActivity() {
+    lateinit var sharedPrefs:SharedPreferences
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.setTitle("Record Payment")
+        sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
+        val usertype = sharedPrefs.getString("usertype", "") ?: ""
         setContent {
-            PaymentForm(context = this)
+            PaymentForm(context = this, usertype)
         }
     }
 }
@@ -45,11 +51,12 @@ class Payment : AppCompatActivity() {
 data class PaymentData(
     val phoneNumber: MutableState<String> = mutableStateOf(""),
     val date: MutableState<String> = mutableStateOf(""),
-    val amount: MutableState<String> = mutableStateOf("")
+    val amount: MutableState<String> = mutableStateOf(""),
+    val userName: MutableState<String> = mutableStateOf("")
 )
 
 @Composable
-fun PaymentForm(context: Context) {
+fun PaymentForm(context: Context, usertype:String) {
     val paymentData = remember { PaymentData() }
     val showDialog = remember { mutableStateOf(false) }
     val userName = remember { mutableStateOf("") }
@@ -130,6 +137,7 @@ fun PaymentForm(context: Context) {
                     if (userNameValue.isNotEmpty()) {
                         userExists.value = true
                         userName.value = userNameValue
+                        paymentData.userName.value = userNameValue
                         showDialog.value = true
                     } else {
                         userExists.value = false
@@ -155,16 +163,40 @@ fun PaymentForm(context: Context) {
                     Button( onClick = {
                         showDialog.value = false
                         loading.value = true
-                        updateTotalWelfare(paymentData.phoneNumber.value, paymentData.amount.value.toInt())
-                        submitPayment(paymentData, context) { success ->
 
-                            if (success) {
-                                loading.value = false
-                                showPaymentSuccessMessage(context)
-                            } else {
-                                loading.value = false
-                                showPaymentFailureMessage(context)
+                        try {
+                            if (usertype.equals("welfare_admin")) {
+                                submitWelfarePayment(paymentData, context) { success ->
+
+                                    if (success) {
+
+                                        loading.value = false
+                                        showPaymentSuccessMessage(context)
+                                    } else {
+                                        loading.value = false
+                                        showPaymentFailureMessage(context)
+                                    }
+                                }
+                            } else if (usertype.equals("twenty_admin")) {
+
+
+                                submitTwentyPayment(paymentData, context) { success ->
+
+                                    if (success) {
+
+
+                                        loading.value = false
+                                        showPaymentSuccessMessage(context)
+                                    } else {
+                                        loading.value = false
+                                        showPaymentFailureMessage(context)
+                                    }
+                                }
                             }
+                        }
+                        catch (e: Exception)
+                        {
+                            Log.d("Error making payment", e.stackTraceToString())
                         }
                     }) {
                         Text("Confirm")
@@ -195,7 +227,11 @@ private fun fetchUserName(phoneNumber: String, onUserNameFetched: (String) -> Un
 
                 val userDocument = querySnapshot.documents.first()
 
-                val userName = userDocument.getString("firstName") +" "+ userDocument.getString("lastName")?: ""
+                val userName =
+                    (userDocument.getString("firstName")
+                        ?: "") + " " + (userDocument.getString("middleName")?: "") + " " + (userDocument.getString(
+                            "lastName"
+                        ) ?: "")
                 onUserNameFetched(userName)
             } else {
                 onUserNameFetched("")
@@ -208,6 +244,34 @@ private fun fetchUserName(phoneNumber: String, onUserNameFetched: (String) -> Un
 }
 
 
+private fun updateTotalTwenty(phoneNumber: String, amountPaid: Int) {
+    val db = FirebaseFirestore.getInstance()
+    val usersCollection = db.collection("users")
+
+    usersCollection
+        .whereEqualTo("phoneNumber", phoneNumber)
+        .get()
+        .addOnSuccessListener { querySnapshot ->
+            for (document in querySnapshot.documents) {
+                val currentTotalPaid = document.getLong("total_twenty_paid") ?: 0
+                val newTotalPaid = currentTotalPaid + amountPaid
+
+                document.reference.update("total_twenty_paid", newTotalPaid)
+                    .addOnSuccessListener {
+                        // Update successful
+                        println("Total twenty-twenty paid updated successfully")
+                    }
+                    .addOnFailureListener { e ->
+                        // Handle any errors
+                        println("Error updating total twenty paid: $e")
+                    }
+            }
+        }
+        .addOnFailureListener { e ->
+            // Handle any errors
+            println("Error getting documents: $e")
+        }
+}
 private fun updateTotalWelfare(phoneNumber: String, amountPaid: Int) {
     val db = FirebaseFirestore.getInstance()
     val usersCollection = db.collection("users")
@@ -237,33 +301,186 @@ private fun updateTotalWelfare(phoneNumber: String, amountPaid: Int) {
         }
 }
 
-private fun submitPayment(paymentData: PaymentData, context: Context, onComplete: (Boolean) -> Unit) {
-    // Replace "payments" with your Firestore collection name for payments
+
+
+private fun submitTwentyPayment(
+    paymentData: PaymentData,
+    context: Context,
+    onComplete: (Boolean) -> Unit
+) {
     val db = FirebaseFirestore.getInstance()
+
+    val phoneNumber = paymentData.phoneNumber.value
+    val amount_paid = paymentData.amount.value
+
+    // Create a map to represent the payment data
     val payment = hashMapOf(
-        "phoneNumber" to paymentData.phoneNumber.value,
         "date" to paymentData.date.value,
         "amount" to paymentData.amount.value
     )
-    db.collection("payments")
-        .add(payment)
-        .addOnSuccessListener {
-            // Payment submitted successfully
-            // Show success message or perform additional actions
-            // You can also navigate to another screen if needed
-            showPaymentSuccessMessage(context)
-        }
-        .addOnFailureListener { exception ->
+
+    // Replace "welfare_payments" with your Firestore collection name for payments
+    val collectionRef = db.collection("twenty_twenty_payments")
+
+    // Query the collection to find the document with the given phone number
+    collectionRef.whereEqualTo("phoneNumber", phoneNumber).get().addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val documents = task.result
+            if (documents != null && !documents.isEmpty) {
+                // The document with the given phone number already exists, update the existing array with new payment data
+                val document = documents.documents[0]
+                val existingPayments = document.get("payments") as? ArrayList<HashMap<String, String>>
+                if (existingPayments != null) {
+                    existingPayments.add(payment)
+                    document.reference.update("payments", existingPayments)
+                        .addOnSuccessListener {
+                            // Payment submitted successfully
+                            // Show success message or perform additional actions
+                            // You can also navigate to another screen if needed
+                            updateTotalTwenty(phoneNumber, amount_paid.toInt())
+                            showPaymentSuccessMessage(context)
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle the failure case
+                            showPaymentFailureMessage(context)
+                        }
+                } else {
+                    // If "payments" field doesn't exist or has a wrong type, create a new array and set it
+                    val newPayments = arrayListOf(payment)
+                    document.reference.set(hashMapOf("phoneNumber" to phoneNumber, "payments" to newPayments))
+                        .addOnSuccessListener {
+                            // Payment submitted successfully
+                            // Show success message or perform additional actions
+                            // You can also navigate to another screen if needed
+                            showPaymentSuccessMessage(context)
+                            updateTotalTwenty(phoneNumber, amount_paid.toInt())
+
+
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle the failure case
+                            showPaymentFailureMessage(context)
+                        }
+                }
+            } else {
+                // The document doesn't exist, create a new document with the payment data as an array
+                val newPayments = arrayListOf(payment)
+                collectionRef.document(paymentData.userName.value.replace(" ","_")).set(hashMapOf("phoneNumber" to phoneNumber, "payments" to newPayments))
+                    .addOnSuccessListener {
+                        // Payment submitted successfully
+                        // Show success message or perform additional actions
+                        // You can also navigate to another screen if needed
+                        updateTotalTwenty(phoneNumber, amount_paid.toInt())
+
+                        showPaymentSuccessMessage(context)
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle the failure case
+                        showPaymentFailureMessage(context)
+                    }
+            }
+        } else {
             // Handle the failure case
             showPaymentFailureMessage(context)
         }
+    }
 }
+
+
+private fun submitWelfarePayment(
+    paymentData: PaymentData,
+    context: Context,
+    onComplete: (Boolean) -> Unit
+) {
+    val db = FirebaseFirestore.getInstance()
+
+    val phoneNumber = paymentData.phoneNumber.value
+    val amount_paid = paymentData.amount.value
+
+
+    // Create a map to represent the payment data
+    val payment = hashMapOf(
+        "date" to paymentData.date.value,
+        "amount" to paymentData.amount.value
+    )
+
+    // Replace "welfare_payments" with your Firestore collection name for payments
+    val collectionRef = db.collection("welfare_payments")
+
+    // Query the collection to find the document with the given phone number
+    collectionRef.whereEqualTo("phoneNumber", phoneNumber).get().addOnCompleteListener { task ->
+        if (task.isSuccessful) {
+            val documents = task.result
+            if (documents != null && !documents.isEmpty) {
+                // The document with the given phone number already exists, update the existing array with new payment data
+                val document = documents.documents[0]
+                val existingPayments = document.get("payments") as? ArrayList<HashMap<String, String>>
+                if (existingPayments != null) {
+                    existingPayments.add(payment)
+                    document.reference.update("payments", existingPayments)
+                        .addOnSuccessListener {
+                            // Payment submitted successfully
+                            // Show success message or perform additional actions
+                            // You can also navigate to another screen if needed
+                            updateTotalWelfare(phoneNumber, amount_paid.toInt())
+                            showPaymentSuccessMessage(context)
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle the failure case
+                            showPaymentFailureMessage(context)
+                        }
+                } else {
+                    // If "payments" field doesn't exist or has a wrong type, create a new array and set it
+                    val newPayments = arrayListOf(payment)
+                    document.reference.set(hashMapOf("phoneNumber" to phoneNumber, "payments" to newPayments))
+                        .addOnSuccessListener {
+                            // Payment submitted successfully
+                            // Show success message or perform additional actions
+                            // You can also navigate to another screen if needed
+                            updateTotalWelfare(phoneNumber, amount_paid.toInt())
+
+                            showPaymentSuccessMessage(context)
+                        }
+                        .addOnFailureListener { exception ->
+                            // Handle the failure case
+                            showPaymentFailureMessage(context)
+                        }
+                }
+            } else {
+                // The document doesn't exist, create a new document with the payment data as an array
+                val newPayments = arrayListOf(payment)
+                collectionRef.document(paymentData.userName.value.replace(" ","_")).set(hashMapOf("phoneNumber" to phoneNumber, "payments" to newPayments))
+                    .addOnSuccessListener {
+                        // Payment submitted successfully
+                        // Show success message or perform additional actions
+                        // You can also navigate to another screen if needed
+                        updateTotalWelfare(phoneNumber, amount_paid.toInt())
+                        showPaymentSuccessMessage(context)
+                    }
+                    .addOnFailureListener { exception ->
+                        // Handle the failure case
+                        showPaymentFailureMessage(context)
+                    }
+            }
+        } else {
+            // Handle the failure case
+            showPaymentFailureMessage(context)
+        }
+    }
+}
+
+
+
 fun showPaymentSuccessMessage(context: Context) {
     val alertDialog = AD.Builder(context)
         .setTitle("Payment Success")
         .setMessage("Your has been recorded successfully.")
         .setPositiveButton("OK") { _, _ ->
             // Perform additional actions or close the dialog if needed
+            if(context is Activity)
+            {
+                context.finish()
+            }
         }
         .create()
 
@@ -279,6 +496,10 @@ private fun showNoUserMessage(context: Context) {
         .setMessage("No user found with the provided phone number.")
         .setPositiveButton("OK") { _, _ ->
             // Perform additional actions or close the dialog if needed
+//            if(context is Activity)
+//            {
+//                context.finish()
+//            }
         }
         .create()
 
@@ -293,6 +514,10 @@ private fun showPaymentFailureMessage(context: Context) {
         .setMessage("Failed to record your payment. Please try again later.")
         .setPositiveButton("OK") { _, _ ->
             // Perform additional actions or close the dialog if needed
+            if(context is  Activity)
+            {
+                context.finish();
+            }
         }
         .create()
 

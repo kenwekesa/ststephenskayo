@@ -11,9 +11,11 @@ import androidx.cardview.widget.CardView
 
 class MembersActivity : AppCompatActivity() {
     private lateinit var my_profile_card: CardView
-    private lateinit var my_payments_card: CardView
-    private lateinit var my_status_card: CardView
+    private lateinit var my_welfare_payments_card: CardView
+    private lateinit var my_welfare_status_card: CardView
     private lateinit var leaders_card: CardView
+    private lateinit var my_twenty_status_card: CardView
+    private lateinit var my_twenty_payments_card: CardView
 
     private lateinit var username_view: TextView
 
@@ -29,9 +31,12 @@ class MembersActivity : AppCompatActivity() {
         setContentView(R.layout.activity_members)
 
         my_profile_card = findViewById(R.id.my_profile_card);
-        my_payments_card = findViewById(R.id.my_payment_card);
-        my_status_card = findViewById(R.id.my_status_card);
+        my_welfare_payments_card = findViewById(R.id.my_welfare_payments_card);
+        my_welfare_status_card = findViewById(R.id.my_welfare_status_card);
         leaders_card = findViewById(R.id.leaders_card)
+        my_twenty_payments_card = findViewById(R.id.my_twenty_payments_card)
+        my_twenty_status_card = findViewById(R.id.my_twenty_status_card)
+
         username_view = findViewById(R.id.user_name_view)
 
         sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
@@ -55,6 +60,8 @@ class MembersActivity : AppCompatActivity() {
         my_payments_card.setOnClickListener()
         {
             val payment_intent = Intent(this, MemberPayment::class.java)
+            payment_intent.putExtra("payment_type", "welfare")
+
             startActivity(payment_intent)
         }
 
@@ -62,6 +69,7 @@ class MembersActivity : AppCompatActivity() {
         {
             //s
             val intent = Intent(this, MemberView::class.java)
+            intent.putExtra("payment_type", "welfare")
             startActivity(intent)
         }
 
@@ -69,6 +77,24 @@ class MembersActivity : AppCompatActivity() {
         {
             val intent = Intent(this, Profile::class.java)
             startActivity(intent)
+        }
+
+        my_twenty_status_card.setOnClickListener()
+        {
+
+            val intent = Intent(this, MemberView::class.java)
+            intent.putExtra("payment_type", "welfare")
+
+            startActivity(intent)
+
+        }
+
+        my_twenty_payments_card.setOnClickListener()
+        {
+            val payment_intent = Intent(this, MemberPayment::class.java)
+            payment_intent.putExtra("payment_type", "twenty")
+
+            startActivity(payment_intent)
         }
 
     }

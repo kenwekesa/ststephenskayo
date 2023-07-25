@@ -68,6 +68,44 @@ class PaymentManager {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
+    fun getTwentyStatus(phoneNumber: String, callback: (String) -> Unit) {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        usersCollection
+            .whereEqualTo("phoneNumber", phoneNumber)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val userDocument = querySnapshot.documents[0]
+                    val dateJoinedString = userDocument.getString("dateJoined")
+
+                    // Assuming the dateJoined format is "dd/MM/yyyy"
+                    val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
+                    val dateJoined = LocalDate.parse(dateJoinedString, dateFormatter)
+
+                    val currentDate = LocalDate.now()
+                    val monthsSinceJoining = ChronoUnit.MONTHS.between(dateJoined, currentDate)
+                    val totalTwentyPaid = userDocument.getLong("total_twenty_paid")?.toInt() ?: 0
+                    val expectedTwentyTotalPaid = (monthsSinceJoining * 100).toInt()
+
+                    val message = if (totalTwentyPaid >= expectedTwentyTotalPaid) {
+                        "20-20 status: Up to date"
+                    } else {
+                        "20-20 status: Not up to date \nPending Balance:"+(expectedTwentyTotalPaid-totalTwentyPaid).toString()+"/=\n" +
+                                "Cover up to "+currentDate.minusMonths((expectedTwentyTotalPaid-totalTwentyPaid)/100 as Long)
+                    }
+
+                    callback(message)
+                } else {
+                    callback("User not found")
+                }
+            }
+            .addOnFailureListener { e ->
+                callback("Error getting document: $e")
+            }
+    }
+    @RequiresApi(Build.VERSION_CODES.O)
     fun getWelfareStatus(phoneNumber: String, callback: (String) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val usersCollection = db.collection("users")
@@ -92,7 +130,8 @@ class PaymentManager {
                     val message = if (totalWelfarePaid >= expectedTotalPaid) {
                         "Payment status: Up to date"
                     } else {
-                        "Payment status: Not up to date \nPending Balance:"+(expectedTotalPaid-totalWelfarePaid).toString()+"/="
+                        "Payment status: Not up to date \nPending Balance:"+(expectedTotalPaid-totalWelfarePaid).toString()+"/=\n" +
+                                "Cover up to "+currentDate.minusMonths((expectedTotalPaid-totalWelfarePaid)/100 as Long)
                     }
 
                     callback(message)

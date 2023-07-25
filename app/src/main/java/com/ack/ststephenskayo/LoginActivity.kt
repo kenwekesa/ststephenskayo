@@ -160,7 +160,7 @@ class LoginViewModel : ViewModel() {
     private fun navigateToNextActivity(context: Context, usertype:String, user_activated:Boolean) {
         //val int = Intent()
         if(user_activated) {
-            if (usertype == "admin") {
+            if (usertype == "welfare_admin" || usertype == "twenty_admin") {
                 val intent = Intent(context, AdminActivity::class.java);
                 context.startActivity(intent)
             } else if (usertype == "member") {
@@ -235,7 +235,7 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 50.dp) // Add considerable margin from the top
+                .padding(top = 30.dp) // Add considerable margin from the top
                 .padding(horizontal = 16.dp), // Add horizontal padding
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
