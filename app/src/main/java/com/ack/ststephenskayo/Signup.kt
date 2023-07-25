@@ -131,7 +131,7 @@ class SignInViewModel : ViewModel() {
             )
 
             db.collection("users")
-                .document(firstName.value)
+                .document(firstName.value+"_"+middleName.value+"_"+lastName.value)
                 .set(user)
                 .addOnSuccessListener { documentReference ->
                     // Sign-in and data submission successful
