@@ -69,7 +69,7 @@ class PaymentManager {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getTwentyStatus(phoneNumber: String, callback: (String) -> Unit) {
+    fun getTwentyStatus(phoneNumber: String, callback: (String, Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val usersCollection = db.collection("users")
 
@@ -90,7 +90,8 @@ class PaymentManager {
                     val totalTwentyPaid = userDocument.getLong("total_twenty_paid")?.toInt() ?: 0
                     val expectedTwentyTotalPaid = (weeksSinceJoining * 20).toInt()
 
-                    val message = if (totalTwentyPaid >= expectedTwentyTotalPaid) {
+                    val isUpToDate = totalTwentyPaid >= expectedTwentyTotalPaid
+                    val message = if (isUpToDate) {
                         "20-20 status: Up to date"
                     } else {
                         val pendingBalance = expectedTwentyTotalPaid - totalTwentyPaid
@@ -99,18 +100,19 @@ class PaymentManager {
                         val formattedDate = formatter.format(paymentDueDate)
 
                         "20-20 status: Not up to date \n\nPending Balance: $pendingBalance /=\n\n" +
-                                "Your payments covers up to $formattedDate"
+                                "Your payments cover up to $formattedDate"
                     }
 
-                    callback(message)
+                    callback(message, isUpToDate)
                 } else {
-                    callback("User not found")
+                    callback("User not found", false)
                 }
             }
             .addOnFailureListener { e ->
-                callback("Error getting document: $e")
+                callback("Error getting document: $e", false)
             }
     }
+
 
 
     //    @RequiresApi(Build.VERSION_CODES.O)
@@ -152,7 +154,7 @@ class PaymentManager {
 //            }
 //    }
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getWelfareStatus(phoneNumber: String, callback: (String) -> Unit) {
+    fun getWelfareStatus(phoneNumber: String, callback: (String, Boolean) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val usersCollection = db.collection("users")
 
@@ -173,22 +175,29 @@ class PaymentManager {
                     val totalWelfarePaid = userDocument.getLong("total_welfare_paid")?.toInt() ?: 0
                     val expectedTotalPaid = (monthsSinceJoining * 100).toInt()
 
-                    val message = if (totalWelfarePaid >= expectedTotalPaid) {
+                    val isUpToDate = totalWelfarePaid >= expectedTotalPaid
+                    val message = if (isUpToDate) {
                         "Welfare payment status: Up to date"
                     } else {
-                        "Welfare payment status: Not up to date \n\nPending Balance:"+(expectedTotalPaid-totalWelfarePaid).toString()+"/=\n\n" +
-                                "Your payments covers up to "+currentDate.minusMonths((expectedTotalPaid-totalWelfarePaid)/100L)
+                        val pendingBalance = expectedTotalPaid - totalWelfarePaid
+                        val paymentDueDate = currentDate.minusMonths(pendingBalance / 100L)
+                        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
+                        val formattedDate = formatter.format(paymentDueDate)
+
+                        "Welfare payment status: Not up to date \n\nPending Balance: $pendingBalance /=\n\n" +
+                                "Your payments cover up to $formattedDate"
                     }
 
-                    callback(message)
+                    callback(message, isUpToDate)
                 } else {
-                    callback("User not found")
+                    callback("User not found", false)
                 }
             }
             .addOnFailureListener { e ->
-                callback("Error getting document: $e")
+                callback("Error getting document: $e", false)
             }
     }
+
 
     fun getTotalPaymentAmount(): Double {
         return totalPayment

@@ -7,4 +7,25 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+    <color name="headerRowBackgroundColor">#4285F4</color>
+
+    <!-- Default data row background color (White) -->
+    <color name="defaultRowBackgroundColor">#FFFFFF</color>
+
+    <!-- Data row 1 background color (Green) -->
+    <color name="rowColor1">#4CAF50</color>
+
+    <!-- Data row 2 background color (Red) -->
+    <color name="rowColor2">#F44336</color>
+
+    <!-- Data row 3 background color (Yellow) -->
+    <color name="rowColor3">#FFC107</color>
+
+    <!-- Header row text color (White) -->
+    <color name="headerRowTextColor">#FFFFFF</color>
+
+    <!-- Data row text color (Black) -->
+    <color name="dataRowTextColor">#000000</color>
 </resources>

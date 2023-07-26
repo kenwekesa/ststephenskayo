@@ -60,15 +60,16 @@ class MemberView : AppCompatActivity() {
         // Call getWelfareStatus and provide a callback function
         if(payment_type  == "welfare") {
             super.setTitle("Welfare Status")
-            paymentManager.getWelfareStatus(phoneNumber.toString()) { message ->
+            paymentManager.getWelfareStatus(phoneNumber.toString()) { message, isUpToDate ->
                 // Update the UI with the received message
                 runOnUiThread {
                     // Example: Display the message in a TextView
-                    if (message.contains("not", ignoreCase = true)) {
-                        paymentStatusButton.setBackgroundColor(Color.RED)
+                    if (isUpToDate) {
+                        paymentStatusButton.setBackgroundColor(0XFF0F9D58.toInt())
+
 
                     } else {
-                        paymentStatusButton.setBackgroundColor(0XFF0F9D58.toInt())
+                        paymentStatusButton.setBackgroundColor(Color.RED)
 
                     }
                     paymentStatusButton.setText(message)
@@ -79,11 +80,11 @@ class MemberView : AppCompatActivity() {
         else if(payment_type=="twenty")
         {
             super.setTitle("Twenty Twenty status")
-            paymentManager.getTwentyStatus(phoneNumber.toString()) { message ->
+            paymentManager.getTwentyStatus(phoneNumber.toString()) { message, isUpToDate ->
                 // Update the UI with the received message
                 runOnUiThread {
                     // Example: Display the message in a TextView
-                    if (message.equals("Payment status: Up to date")) {
+                    if (isUpToDate) {
                         paymentStatusButton.setBackgroundColor(0XFF0F9D58.toInt())
 
                     } else {
