@@ -39,16 +39,23 @@ import java.io.File
 
 data class Paym(val date: String, val name: String, val amount: String)
 
-class MemberPaymentViewModel(private val phoneNumber: String, private val password: String) : ViewModel() {
+class MemberPaymentViewModel(private val phoneNumber: String, private val password: String, payment_type: String) : ViewModel() {
     val payments = mutableStateListOf<Paym>()
 
     init {
-        fetchPayments()
+        fetchPayments(payment_type)
     }
 
-    private fun fetchPayments() {
+    private fun fetchPayments(payment_type: String) {
         val db = FirebaseFirestore.getInstance()
-        val paymentsCollection = db.collection("payments")
+
+        val collection_name = when (payment_type) {
+            "welfare" -> "welfare_payments"
+            "twenty" -> "twenty_twenty_payments"
+            else -> ""
+        }
+
+        val paymentsCollection = db.collection(collection_name)
 
         viewModelScope.launch {
             try {
@@ -58,16 +65,20 @@ class MemberPaymentViewModel(private val phoneNumber: String, private val passwo
                         .await()
                 }
 
-                val paymentList = querySnapshot.documents.mapNotNull { document ->
-                    val date = document.getString("date")
-                    val name = document.getString("phoneNumber")
-                    val amount = document.getString("amount")
+                val paymentList = querySnapshot.documents.flatMap { document ->
 
-                    if (date != null && name != null && amount != null) {
-                        Paym(date, name, amount)
-                    } else {
-                        null
-                    }
+                    val paymentsArray = document.get("payments") as? ArrayList<HashMap<String, Any>>
+
+                    paymentsArray?.mapNotNull { payment ->
+                        val date = payment["date"] as? String
+                        val amount = payment["amount"] as? String
+
+                        if (date != null && amount != null) {
+                            Paym(date, phoneNumber, amount)
+                        } else {
+                            null
+                        }
+                    } ?: emptyList()
                 }
 
                 payments.addAll(paymentList)
@@ -77,6 +88,7 @@ class MemberPaymentViewModel(private val phoneNumber: String, private val passwo
             }
         }
     }
+
 }
 
 class MemberPayment : AppCompatActivity() {
@@ -91,8 +103,12 @@ class MemberPayment : AppCompatActivity() {
         sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val phoneNumber = sharedPrefs.getString("phoneNumber", "") ?: ""
         val password = sharedPrefs.getString("password", "") ?: ""
+
+        // Retrieve the extra from the Intent
+        val payment_type = intent?.getStringExtra("payment_type")
+
         setContent {
-            MemberPaymentScreen(phoneNumber, password, this@MemberPayment)
+            MemberPaymentScreen(phoneNumber, password, this@MemberPayment,payment_type as String)
         }
 
         checkWriteExternalStoragePermission()
@@ -138,8 +154,8 @@ class MemberPayment : AppCompatActivity() {
 }
 
 @Composable
-fun MemberPaymentScreen(phoneNumber: String, password: String,context: Context) {
-    val viewModelFactory = MemberPaymentViewModelFactory(phoneNumber, password)
+fun MemberPaymentScreen(phoneNumber: String, password: String,context: Context,payment_type: String) {
+    val viewModelFactory = MemberPaymentViewModelFactory(phoneNumber, password, payment_type)
     val viewModel: MemberPaymentViewModel = viewModel(factory = viewModelFactory)
 
     MemberPaymentView(viewModel = viewModel, phoneNumber = phoneNumber, password = password,context)
@@ -148,12 +164,13 @@ fun MemberPaymentScreen(phoneNumber: String, password: String,context: Context) 
 
 class MemberPaymentViewModelFactory(
     private val phoneNumber: String,
-    private val password: String
+    private val password: String,
+    private  val payment_type: String,
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MemberPaymentViewModel::class.java)) {
-            return MemberPaymentViewModel(phoneNumber, password) as T
+            return MemberPaymentViewModel(phoneNumber, password, payment_type) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -171,7 +188,7 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel,phoneNumber: String,pass
             Row {
                 Text(text = "Date")
                 Spacer(modifier = Modifier.weight(1f))
-                Text(text = "Name")
+                Text(text = "Phone No.")
                 Spacer(modifier = Modifier.weight(1f))
                 Text(text = "Amount")
             }
@@ -209,7 +226,7 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel,phoneNumber: String,pass
 // Function to generate and save the Excel file
 fun generateExcelSheet(context: Context, payments: List<Paym>) {
     try {
-        val stStephensDirectory = File(context.getExternalFilesDir(null), "StStephens")
+        val stStephensDirectory = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "StStephens")
 
         if (!stStephensDirectory.exists()) {
             stStephensDirectory.mkdirs()

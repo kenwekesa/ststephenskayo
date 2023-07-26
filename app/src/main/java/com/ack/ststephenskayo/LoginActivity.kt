@@ -235,8 +235,7 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 30.dp) // Add considerable margin from the top
-                .padding(horizontal = 16.dp), // Add horizontal padding
+                .padding(top = 30.dp, start = 16.dp, end = 16.dp), // Add vertical and horizontal padding
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             OutlinedTextField(
@@ -269,7 +268,7 @@ fun LoginView(context: Context, viewModel: LoginViewModel = viewModel()) {
                     viewModel.performLogin(context)
                 },
                 modifier = Modifier.fillMaxWidth()
-                    .padding(top = 16.dp)
+                    .padding(vertical = 30.dp)
                     .padding(horizontal = 18.dp)
             ) {
                 if (isLoading) {

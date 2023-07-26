@@ -17,7 +17,6 @@ import java.time.LocalDate
 
 class MemberView : AppCompatActivity() {
 
-    private lateinit var signUpButton: Button
     private lateinit var paymentButton: Button
     private lateinit var paymentStatusButton: Button
 
@@ -50,33 +49,54 @@ class MemberView : AppCompatActivity() {
 
 
         //signUpButton = findViewById(R.id.signup_btn);
-        paymentButton = findViewById(R.id.my_payments_btn);
         paymentStatusButton = findViewById(R.id.view_payments_btn);
 
         nameView = findViewById(R.id.name_tv)
         memberNumberView = findViewById(R.id.member_no_tv)
 
+        // Retrieve the extra from the Intent
+        val payment_type = intent?.getStringExtra("payment_type")
 
         // Call getWelfareStatus and provide a callback function
-        paymentManager.getWelfareStatus(phoneNumber.toString()) { message ->
-            // Update the UI with the received message
-            runOnUiThread {
-                // Example: Display the message in a TextView
-                if(message.equals("Payment status: Up to date"))
-                {
-                    paymentStatusButton.setBackgroundColor(0XFF0F9D58.toInt())
+        if(payment_type  == "welfare") {
+            super.setTitle("Welfare Status")
+            paymentManager.getWelfareStatus(phoneNumber.toString()) { message ->
+                // Update the UI with the received message
+                runOnUiThread {
+                    // Example: Display the message in a TextView
+                    if (message.contains("not", ignoreCase = true)) {
+                        paymentStatusButton.setBackgroundColor(Color.RED)
 
+                    } else {
+                        paymentStatusButton.setBackgroundColor(0XFF0F9D58.toInt())
+
+                    }
+                    paymentStatusButton.setText(message)
                 }
-                else
-                {
-                    paymentStatusButton.setBackgroundColor(Color.RED)
-                }
-                paymentStatusButton.setText(message)
             }
-        }
 
-        nameView.setText(firstname+" "+lastname)
+        }
+        else if(payment_type=="twenty")
+        {
+            super.setTitle("Twenty Twenty status")
+            paymentManager.getTwentyStatus(phoneNumber.toString()) { message ->
+                // Update the UI with the received message
+                runOnUiThread {
+                    // Example: Display the message in a TextView
+                    if (message.equals("Payment status: Up to date")) {
+                        paymentStatusButton.setBackgroundColor(0XFF0F9D58.toInt())
+
+                    } else {
+                        paymentStatusButton.setBackgroundColor(Color.RED)
+                    }
+                    paymentStatusButton.setText(message)
+                }
+            }
+
+        }
+            nameView.setText(firstname + " " + lastname)
         memberNumberView.setText(memberNumber)
+
 
 
 
@@ -96,11 +116,7 @@ class MemberView : AppCompatActivity() {
 
 
 
-        paymentButton.setOnClickListener()
-        {
-            val payment_intent = Intent(this, MemberPayment::class.java)
-            startActivity(payment_intent)
-        }
+
 
     }
 }

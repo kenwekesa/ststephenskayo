@@ -49,6 +49,7 @@ class MembersActivity : AppCompatActivity() {
 
 
 
+
       username_view.setText(firstname+" "+lastname)
 
 
@@ -57,7 +58,7 @@ class MembersActivity : AppCompatActivity() {
             val payment_intent = Intent(this, Leaders::class.java)
             startActivity(payment_intent)
         }
-        my_payments_card.setOnClickListener()
+        my_welfare_payments_card.setOnClickListener()
         {
             val payment_intent = Intent(this, MemberPayment::class.java)
             payment_intent.putExtra("payment_type", "welfare")
@@ -65,7 +66,7 @@ class MembersActivity : AppCompatActivity() {
             startActivity(payment_intent)
         }
 
-        my_status_card.setOnClickListener()
+        my_welfare_status_card.setOnClickListener()
         {
             //s
             val intent = Intent(this, MemberView::class.java)
@@ -83,7 +84,7 @@ class MembersActivity : AppCompatActivity() {
         {
 
             val intent = Intent(this, MemberView::class.java)
-            intent.putExtra("payment_type", "welfare")
+            intent.putExtra("payment_type", "twenty")
 
             startActivity(intent)
 

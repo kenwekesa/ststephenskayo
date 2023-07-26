@@ -6,37 +6,21 @@
     android:layout_height="match_parent"
     tools:context=".MemberView">
 
-    <Button
-        android:id="@+id/payment_btn"
-        android:layout_width="165dp"
-        android:layout_height="73dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="103dp"
-        android:text="Statements"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/member_no_lbl" />
 
     <Button
         android:id="@+id/view_payments_btn"
-        android:layout_width="383dp"
-        android:layout_height="69dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="121dp"
+        android:layout_marginTop="161dp"
         android:layout_marginEnd="16dp"
+        android:paddingVertical="15dp"
         android:text="Payment status"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/my_payments_btn"
-        android:layout_width="148dp"
-        android:layout_height="72dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="143dp"
-        android:text="My payments"
-        app:layout_constraintStart_toEndOf="@+id/payment_btn"
-        app:layout_constraintTop_toBottomOf="@+id/name_tv" />
+
 
     <TextView
         android:id="@+id/name_lbl"

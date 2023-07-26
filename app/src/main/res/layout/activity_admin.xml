@@ -80,7 +80,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Manage Accouts"
+                    android:text="Manage Accounts"
                     android:gravity="center"
                     android:textSize="10sp" />
 
