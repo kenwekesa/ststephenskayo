@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 
@@ -16,6 +15,9 @@ class MembersActivity : AppCompatActivity() {
     private lateinit var leaders_card: CardView
     private lateinit var my_twenty_status_card: CardView
     private lateinit var my_twenty_payments_card: CardView
+    private lateinit var welfare_constitution_card: CardView
+    private lateinit var calendar_of_events_card: CardView
+
 
     private lateinit var username_view: TextView
 
@@ -36,6 +38,8 @@ class MembersActivity : AppCompatActivity() {
         leaders_card = findViewById(R.id.leaders_card)
         my_twenty_payments_card = findViewById(R.id.my_twenty_payments_card)
         my_twenty_status_card = findViewById(R.id.my_twenty_status_card)
+        welfare_constitution_card = findViewById(R.id.welfare_constitution_card)
+        calendar_of_events_card = findViewById(R.id.calendar_of_events_card)
 
         username_view = findViewById(R.id.user_name_view)
 
@@ -96,6 +100,17 @@ class MembersActivity : AppCompatActivity() {
             payment_intent.putExtra("payment_type", "twenty")
 
             startActivity(payment_intent)
+        }
+        welfare_constitution_card.setOnClickListener()
+        {
+            val intent = Intent(this, WelfareConstitution::class.java)
+            startActivity(intent)
+        }
+
+        calendar_of_events_card.setOnClickListener()
+        {
+            val intent = Intent(this, CalendarOfEvents::class.java)
+            startActivity(intent)
         }
 
     }

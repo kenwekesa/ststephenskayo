@@ -226,7 +226,10 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel,phoneNumber: String,pass
 // Function to generate and save the Excel file
 fun generateExcelSheet(context: Context, payments: List<Paym>) {
     try {
-        val stStephensDirectory = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "StStephens")
+        val stStephensDirectory = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            "StStephens"
+        )
 
         if (!stStephensDirectory.exists()) {
             stStephensDirectory.mkdirs()
@@ -239,7 +242,7 @@ fun generateExcelSheet(context: Context, payments: List<Paym>) {
             filePath.createNewFile()
         }
 
-        val writableWorkbook: WritableWorkbook = Workbook.createWorkbook(File(filePath.toString()))
+        val writableWorkbook: WritableWorkbook = Workbook.createWorkbook(filePath)
         val sheet: WritableSheet = writableWorkbook.createSheet("Payments", 0)
 
         // Create header row

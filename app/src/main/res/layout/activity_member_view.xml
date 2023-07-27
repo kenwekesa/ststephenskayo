@@ -15,7 +15,7 @@
         android:layout_marginTop="161dp"
         android:layout_marginEnd="16dp"
         android:paddingVertical="15dp"
-        android:text="Payment status"
+        android:text="Status loading..."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

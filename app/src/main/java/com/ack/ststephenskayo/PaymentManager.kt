@@ -95,7 +95,7 @@ class PaymentManager {
                         "20-20 status: Up to date"
                     } else {
                         val pendingBalance = expectedTwentyTotalPaid - totalTwentyPaid
-                        val paymentDueDate = currentDate.minusWeeks(pendingBalance.toLong())
+                        val paymentDueDate = currentDate.minusWeeks(pendingBalance/20L)
                         val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.getDefault())
                         val formattedDate = formatter.format(paymentDueDate)
 

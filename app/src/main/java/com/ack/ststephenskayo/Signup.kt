@@ -64,9 +64,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.FirebaseFirestore
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -105,54 +107,54 @@ class SignInViewModel : ViewModel() {
     }
 
     fun performSignIn() {
-        generateUniqueNumber { uniqueNumber ->
-            // Use the uniqueNumber here
-            // Rest of the function...
-
-
-
-        try {
-            val db = FirebaseFirestore.getInstance()
-            val user = hashMapOf(
-                "firstName" to firstName.value,
-                "lastName" to lastName.value,
-                "fellowship" to fellowship.value,
-                "password" to phoneNumber.value,
-                "dateJoined" to dateJoined.value,
-                "phoneNumber" to phoneNumber.value,
-                "middleName" to middleName.value,
-                "birthDate" to birthDate.value,
-                "birthMonth" to birthMonth.value,
-                "total_welfare_paid" to 0,
-                "total_twenty_paid" to 0,
-                "usertype" to "member",
-                "memberNumber" to   uniqueNumber // Add unique number field
-                // Add other fields as needed
-            )
-
-            db.collection("users")
-                .document(firstName.value+"_"+middleName.value+"_"+lastName.value)
-                .set(user)
-                .addOnSuccessListener { documentReference ->
-                    // Sign-in and data submission successful
-                    // Handle any necessary actions or navigate to the next screen
-                    updateLastUniqueNumber(uniqueNumber)
-                    submissionStatus.value = SubmissionStatus.SUCCESS
-                    submissionMessage.value = "Member added successfully!"
-                }
-                .addOnFailureListener { e ->
-                    // Sign-in and data submission failed
-                    // Handle error case and display appropriate message
-
-                    submissionStatus.value = SubmissionStatus.ERROR
-                    submissionMessage.value = "Error occurred during submission."
-                }
+        // Check if the phone number is valid
+        if (!isPhoneNumberValid(phoneNumber.value)) {
+            submissionStatus.value = SubmissionStatus.ERROR
+            submissionMessage.value = "Invalid phone number"
+            return
         }
-        catch (e: Exception) {
-            // Error handling and logging
-            Log.e("Signup", "Error submitting data: ${e.message}", e)
+
+        // Check if the user already exists with the same phone number
+        viewModelScope.launch {
+            val userAlreadyExists = userExists(phoneNumber.value)
+            if (userAlreadyExists) {
+                submissionStatus.value = SubmissionStatus.ERROR
+                submissionMessage.value = "User with this phone number already exists"
+            } else {
+                // User doesn't exist, proceed with registration
+                generateUniqueNumber { uniqueNumber ->
+                    try {
+                        val db = FirebaseFirestore.getInstance()
+                        val user = hashMapOf(
+                            // ... other user properties ...
+                            "phoneNumber" to phoneNumber.value,
+                            // ... other user properties ...
+                        )
+
+                        db.collection("users")
+                            .document(firstName.value+"_"+middleName.value+"_"+lastName.value)
+                            .set(user)
+                            .addOnSuccessListener { documentReference ->
+                                // Sign-in and data submission successful
+                                // Handle any necessary actions or navigate to the next screen
+                                updateLastUniqueNumber(uniqueNumber)
+                                submissionStatus.value = SubmissionStatus.SUCCESS
+                                submissionMessage.value = "Member added successfully!"
+                            }
+                            .addOnFailureListener { e ->
+                                // Sign-in and data submission failed
+                                // Handle error case and display appropriate message
+                                submissionStatus.value = SubmissionStatus.ERROR
+                                submissionMessage.value = "Error occurred during submission."
+                            }
+                    } catch (e: Exception) {
+                        // Error handling and logging
+                        Log.e("Signup", "Error submitting data: ${e.message}", e)
+                    }
+                }
+            }
         }
-    }}
+    }
 
     private fun updateLastUniqueNumber(newUniqueNumber: String) {
         try {
@@ -220,6 +222,20 @@ class SignInViewModel : ViewModel() {
             }
         }
     }
+
+    private suspend fun userExists(phoneNumber: String): Boolean {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        return try {
+            val querySnapshot = usersCollection.whereEqualTo("phoneNumber", phoneNumber).get().await()
+            !querySnapshot.isEmpty
+        } catch (e: Exception) {
+            Log.e("Signup", "Error checking user existence: ${e.message}", e)
+            false
+        }
+    }
+
 
 
 
