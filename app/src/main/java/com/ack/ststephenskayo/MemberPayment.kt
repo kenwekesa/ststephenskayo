@@ -7,11 +7,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -32,8 +34,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
+import com.itextpdf.text.BaseColor
 import com.itextpdf.text.Document
+import com.itextpdf.text.Font
+import com.itextpdf.text.FontFactory
+import com.itextpdf.text.Paragraph
+import com.itextpdf.text.Phrase
+import com.itextpdf.text.pdf.PdfPCell
 import com.itextpdf.text.pdf.PdfPTable
 import com.itextpdf.text.pdf.PdfWriter
 import jxl.Workbook
@@ -47,6 +56,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
+import java.util.UUID
 
 data class Paym(val date: String, val name: String, val amount: String)
 
@@ -162,6 +172,7 @@ class MemberPayment : AppCompatActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @Composable
 fun MemberPaymentScreen(phoneNumber: String, password: String, context: Context, payment_type: String) {
     val viewModelFactory = MemberPaymentViewModelFactory(phoneNumber, password, payment_type)
@@ -227,7 +238,7 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel, phoneNumber: String, pa
 
             // Generate Excel button
             Button(
-                onClick = { generatePdf(context, viewModel.payments) },
+                onClick = { generatePdf(context, viewModel.payments, "WELFARE PAYMENT  STATEMENT") },
                 modifier = Modifier.padding(vertical = 16.dp)
             ) {
                 Text(text = "Generate pdf")
@@ -235,7 +246,30 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel, phoneNumber: String, pa
         }
     }
 }
+// Function to show Snackbar with 'Open' button
+private fun showSnackbarWithOpenButton(context: Context, fileUri: Uri) {
+    val parentView = (context as Activity).findViewById<View>(android.R.id.content)
 
+    val snackbar = Snackbar.make(parentView, "PDF file saved successfully!", Snackbar.LENGTH_INDEFINITE)
+    snackbar.setAction("Open") {
+        openPdfFile(context, fileUri)
+    }
+    snackbar.show()
+}
+
+// Function to open the PDF file with an intent
+private fun openPdfFile(context: Context, fileUri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(fileUri, "application/pdf")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    } else {
+        Toast.makeText(context, "No PDF viewer app found", Toast.LENGTH_SHORT).show()
+    }
+}
 // Function to generate and save the Excel file
 //fun generateExcelSheet(context: Context, payments: List<Paym>) {
 //    try {
@@ -288,7 +322,9 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel, phoneNumber: String, pa
 @RequiresApi(Build.VERSION_CODES.Q)
 fun generateExcelSheet(context: Context, payments: List<Paym>) {
     try {
-        val fileName = payments[0].name
+
+        val uniqueId = UUID.randomUUID().toString()
+        val fileName = "${payments[0].name}_$uniqueId.xls"
 
         // Create a ContentValues object to store the file metadata
         val contentValues = ContentValues().apply {
@@ -359,55 +395,172 @@ fun generateExcelSheet(context: Context, payments: List<Paym>) {
     }
 }
 
-fun generatePdf(context: Context, payments: List<Paym>) {
-    val fileName = "example.pdf"
+
+
+@RequiresApi(Build.VERSION_CODES.Q)
+fun generatePdf(context: Context, payments: List<Paym>, title: String) {
+    val fileName = "${payments[0].name}.pdf"
 
     // Create the document
     val document = Document()
     try {
-        // Get the path to the Downloads directory
-        val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-        // Create the StStephens directory if it doesn't exist
-        val stStephensDirectory = File(downloadsDir, "StStephens")
-        if (!stStephensDirectory.exists()) {
-            stStephensDirectory.mkdirs()
+        // Create the PDF file in the StStephens directory
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/StStephens")
         }
 
-        // Create the PDF file
-        val file = File(stStephensDirectory, fileName)
-        val fileOutputStream = FileOutputStream(file)
+        val contentResolver = context.contentResolver
+        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
 
-        // Set up the PDF writer
-        PdfWriter.getInstance(document, fileOutputStream)
+        uri?.let { uri ->
+            val outputStream = contentResolver.openOutputStream(uri)
+            if (outputStream != null) {
+                // Set up the PDF writer
+                PdfWriter.getInstance(document, outputStream)
 
-        // Open the document
-        document.open()
+                // Open the document
+                document.open()
 
-        // Create the table with 3 columns
-        val table = PdfPTable(3)
+                // Add the title to the document
+                val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18f, Font.UNDERLINE)
+                val titleParagraph = Paragraph(title, titleFont)
+                titleParagraph.alignment = Paragraph.ALIGN_CENTER
+                titleParagraph.spacingAfter = 10f
+                document.add(titleParagraph)
 
-        // Add table headers
-        table.addCell("Date")
-        table.addCell("Name")
-        table.addCell("Amount")
+                // Create the table with 3 columns
+                val table = PdfPTable(3)
 
-        // Add data rows
-        for (payment in payments) {
-            table.addCell(payment.date)
-            table.addCell(payment.name)
-            table.addCell(payment.amount)
+                // Set table properties
+                table.widthPercentage = 100f
+                table.setHeaderRows(1) // The first row will be treated as the header
+
+                // Set table border color
+                table.defaultCell.borderColor = BaseColor.WHITE
+
+                // Define the heading row background color
+                val headingBackgroundColor = BaseColor.GRAY
+
+                // Add table headers with custom style
+                addCellWithCustomStyle(table, "Date", headingBackgroundColor)
+                addCellWithCustomStyle(table, "Name", headingBackgroundColor)
+                addCellWithCustomStyle(table, "Amount", headingBackgroundColor)
+
+                // Define the data row background color
+                val dataBackgroundColor = BaseColor.LIGHT_GRAY
+
+                // Add data rows with custom style
+                for (payment in payments) {
+                    addCellWithCustomStyle(table, payment.date, dataBackgroundColor)
+                    addCellWithCustomStyle(table, payment.name, dataBackgroundColor)
+                    addCellWithCustomStyle(table, payment.amount, dataBackgroundColor)
+                }
+
+                // Add the table to the document
+                document.add(table)
+
+                // Close the document
+                document.close()
+
+                // Close the output stream
+                outputStream.close()
+
+                // Show the Snackbar with the 'Open' button
+                showSnackbarWithOpenButton(context, uri)
+                //Toast.makeText(context, "PDF file saved successfully!", Toast.LENGTH_SHORT).show()
+            } else {
+                // Handle error opening output stream
+                Log.e("Error", "Error opening output stream")
+                Toast.makeText(context, "Failed to save PDF file!", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            // Handle error creating URI
+            Log.e("Error", "Error creating URI")
+            Toast.makeText(context, "Failed to create file!", Toast.LENGTH_SHORT).show()
         }
-
-        // Add the table to the document
-        document.add(table)
-
-        // Close the document
-        document.close()
-
-        Toast.makeText(context, "PDF file saved successfully!", Toast.LENGTH_SHORT).show()
     } catch (e: Exception) {
         // Handle the exception
         Log.e("Error", "Error generating PDF file: ${e.message}", e)
         Toast.makeText(context, "Error generating PDF file: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
+
+// Function to add cell with custom style
+private fun addCellWithCustomStyle(table: PdfPTable, text: String, bgColor: BaseColor) {
+    val cell = PdfPCell(Phrase(text))
+    cell.backgroundColor = bgColor
+    cell.borderColor = BaseColor.WHITE
+    cell.setPadding(5f)
+    table.addCell(cell)
+}
+
+
+//@RequiresApi(Build.VERSION_CODES.Q)
+//fun generatePdf(context: Context, payments: List<Paym>) {
+//    val fileName = "${payments[0].name}.pdf"
+//
+//    // Create the document
+//    val document = Document()
+//    try {
+//        // Create the PDF file in the StStephens directory
+//        val contentValues = ContentValues().apply {
+//            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+//            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+//            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/StStephens")
+//        }
+//
+//        val contentResolver = context.contentResolver
+//        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+//
+//        uri?.let { uri ->
+//            val outputStream = contentResolver.openOutputStream(uri)
+//            if (outputStream != null) {
+//                // Set up the PDF writer
+//                PdfWriter.getInstance(document, outputStream)
+//
+//                // Open the document
+//                document.open()
+//
+//                // Create the table with 3 columns
+//                val table = PdfPTable(3)
+//
+//                // Add table headers
+//                table.addCell("Date")
+//                table.addCell("Name")
+//                table.addCell("Amount")
+//
+//                // Add data rows
+//                for (payment in payments) {
+//                    table.addCell(payment.date)
+//                    table.addCell(payment.name)
+//                    table.addCell(payment.amount)
+//                }
+//
+//                // Add the table to the document
+//                document.add(table)
+//
+//                // Close the document
+//                document.close()
+//
+//                // Close the output stream
+//                outputStream.close()
+//
+//                Toast.makeText(context, "PDF file saved successfully!", Toast.LENGTH_SHORT).show()
+//            } else {
+//                // Handle error opening output stream
+//                Log.e("Error", "Error opening output stream")
+//                Toast.makeText(context, "Failed to save PDF file!", Toast.LENGTH_SHORT).show()
+//            }
+//        } ?: run {
+//            // Handle error creating URI
+//            Log.e("Error", "Error creating URI")
+//            Toast.makeText(context, "Failed to create file!", Toast.LENGTH_SHORT).show()
+//        }
+//    } catch (e: Exception) {
+//        // Handle the exception
+//        Log.e("Error", "Error generating PDF file: ${e.message}", e)
+//        Toast.makeText(context, "Error generating PDF file: ${e.message}", Toast.LENGTH_SHORT).show()
+//    }
+//}

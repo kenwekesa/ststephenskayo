@@ -46,7 +46,13 @@ class AllMembers : AppCompatActivity() {
 
                     val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
 
-                    val balance = (ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toInt() - totalPaid;
+                    val balance = if (dateJoined?.isNotEmpty() == true) {
+                        ((ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toDouble() - totalPaid).toDouble()
+                    } else {
+                        0.0
+                    }
+
+                    //val balance = (ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toInt() - totalPaid;
 
                     val member = Member(id, name, dateJoined, totalPaid, balance)
                     membersList.add(member)

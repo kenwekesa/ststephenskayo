@@ -127,8 +127,22 @@ class SignInViewModel : ViewModel() {
                         val db = FirebaseFirestore.getInstance()
                         val user = hashMapOf(
                             // ... other user properties ...
+
+
+                            "firstName" to firstName.value,
+                            "lastName" to lastName.value,
+                            "fellowship" to fellowship.value,
+                            "password" to phoneNumber.value,
+                            "dateJoined" to dateJoined.value,
                             "phoneNumber" to phoneNumber.value,
-                            // ... other user properties ...
+                            "middleName" to middleName.value,
+                            "birthDate" to birthDate.value,
+                            "birthMonth" to birthMonth.value,
+                            "total_welfare_paid" to 0,
+                            "total_twenty_paid" to 0,
+                            "usertype" to "member",
+                            "memberNumber" to   uniqueNumber // Add unique number field
+                            // Add other fields as needed
                         )
 
                         db.collection("users")
