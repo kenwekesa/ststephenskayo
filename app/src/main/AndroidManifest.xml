@@ -21,6 +21,9 @@
         android:theme="@style/Theme.StStephensKayo"
         tools:targetApi="31">
         <activity
+            android:name=".GenerateFile"
+            android:exported="false" />
+        <activity
             android:name=".CalendarOfEvents"
             android:exported="false" />
         <activity
