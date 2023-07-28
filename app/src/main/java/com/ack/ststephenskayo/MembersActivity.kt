@@ -19,6 +19,8 @@ class MembersActivity : AppCompatActivity() {
     private lateinit var calendar_of_events_card: CardView
 
 
+
+
     private lateinit var username_view: TextView
 
 
@@ -40,6 +42,7 @@ class MembersActivity : AppCompatActivity() {
         my_twenty_status_card = findViewById(R.id.my_twenty_status_card)
         welfare_constitution_card = findViewById(R.id.welfare_constitution_card)
         calendar_of_events_card = findViewById(R.id.calendar_of_events_card)
+
 
         username_view = findViewById(R.id.user_name_view)
 
@@ -112,6 +115,8 @@ class MembersActivity : AppCompatActivity() {
             val intent = Intent(this, CalendarOfEvents::class.java)
             startActivity(intent)
         }
+
+
 
     }
 }

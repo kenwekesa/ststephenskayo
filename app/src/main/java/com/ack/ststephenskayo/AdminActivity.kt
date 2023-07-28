@@ -16,6 +16,8 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var membershipButton: CardView
     private lateinit var manage_security_card: CardView
     private lateinit var birthdays_card: CardView
+    private lateinit var statements_card: CardView
+
 
     private lateinit var username_tv: TextView
 
@@ -34,6 +36,7 @@ class AdminActivity : AppCompatActivity() {
         membershipButton = findViewById((R.id.my_membership_card))
         manage_security_card = findViewById(R.id.manage_security_card)
         birthdays_card = findViewById(R.id.birthdays_card)
+        statements_card = findViewById(R.id.statements_card)
 
 
         sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
@@ -85,5 +88,10 @@ class AdminActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        statements_card.setOnClickListener()
+        {
+            val intent = Intent(this, Statements::class.java)
+            startActivity(intent)
+        }
     }
 }
