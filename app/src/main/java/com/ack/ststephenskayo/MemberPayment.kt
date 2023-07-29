@@ -228,21 +228,9 @@ fun MemberPaymentView(viewModel: MemberPaymentViewModel, phoneNumber: String, pa
                 }
             }
 
-            // Generate Excel button
-            Button(
-                onClick = { generateExcelSheet(context, viewModel.payments) },
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
-                Text(text = "Generate Excel")
-            }
 
-            // Generate Excel button
-            Button(
-                onClick = { generatePdf(context, viewModel.payments, "WELFARE PAYMENT  STATEMENT") },
-                modifier = Modifier.padding(vertical = 16.dp)
-            ) {
-                Text(text = "Generate pdf")
-            }
+
+
         }
     }
 }
