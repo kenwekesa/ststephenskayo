@@ -167,14 +167,12 @@ class Statements : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        val viewModel = ViewModelProvider(this).get(MemberPaymentViewModel::class.java)
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == WRITE_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted
                 // Generate and save the Excel file
-                generateExcelSheet(this, viewModel.payments)
 
             } else {
                 // Permission denied
@@ -548,7 +546,7 @@ fun generateExcelSheetStatement(context: Context, userdetails: MutableList<Map<S
 
                 // Close the output stream
                 outputStream.close()
-                showSnackbarWithOpenButton(context, uri,"Excel file saved successfully!")
+                showSnackbarWithOpenButton(context, uri,"Excel report generated successfully!")
 
                 // Toast.makeText(context, "Excel file saved successfully!", Toast.LENGTH_SHORT).show()
             } else {
@@ -663,7 +661,7 @@ fun generatePdfStatement(context: Context, userdetails: MutableList<Map<String, 
                 outputStream.close()
 
                 // Show the Snackbar with the 'Open' button
-                showSnackbarWithOpenButton(context, uri, "PDF file saved successfully!")
+                showSnackbarWithOpenButton(context, uri, "PDF report generated successfully!")
                 //Toast.makeText(context, "PDF file saved successfully!", Toast.LENGTH_SHORT).show()
             } else {
                 // Handle error opening output stream
