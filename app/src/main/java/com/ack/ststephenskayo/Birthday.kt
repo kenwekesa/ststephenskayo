@@ -78,8 +78,7 @@ class Birthday : AppCompatActivity() {
 
         val stringBuilder = StringBuilder()
 
-        stringBuilder.append("🎉🎂 *Happy Birthday, Dear Brothers and Sisters!* 🎂🎉\n\n")
-        stringBuilder.append("Today, we want to celebrate the birthdays of some amazing members in our midst. Let us take a moment to wish them all a year filled with God's blessings, love, and grace! 🙏❤️\n\n")
+        stringBuilder.append("🎉🎂 *Special Birthday wishes to you!* 🎂🎉\n\n")
 
         stringBuilder.append("🎉 *Birthday Celebrants:* 🎉\n\n")
 
@@ -88,8 +87,9 @@ class Birthday : AppCompatActivity() {
             stringBuilder.append("*${index + 1}. $name* 🎈\n")
 
         }
+        stringBuilder.append("\nToday, we want to celebrate the birthday of our amazing member(s). 🙏❤️\n\n")
 
-        stringBuilder.append("\nLet's join hands and pray for these brothers and sisters, asking God to guide them in His love throughout the coming year. 🙏❤️\n\n")
+        stringBuilder.append("\nWe join hands to pray for God to guide you in his love throughout the coming year. 🙏❤️\n\n")
         stringBuilder.append("Happy Birthday once again! May your lives continue to be a testimony of God's grace and His unconditional love for each one of us. 🙏❤️🕊️\n\n")
         stringBuilder.append("With love and blessings,\nST. STEPHENS KAYO FAMILY") // Replace [Your Name] with your actual name
 
@@ -102,8 +102,13 @@ class Birthday : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "text/plain"
         intent.putExtra(Intent.EXTRA_TEXT, message)
-        intent.setPackage("com.whatsapp")
-        startActivity(intent)
+// Create a chooser and start the activity with it
+        val chooser = Intent.createChooser(intent, "Share via...")
+        startActivity(chooser)
+
+        //THIS WAS EXPLICITLY FOR WHATSAPP
+       // intent.setPackage("com.whatsapp")
+        //startActivity(intent)
     }
 }
 

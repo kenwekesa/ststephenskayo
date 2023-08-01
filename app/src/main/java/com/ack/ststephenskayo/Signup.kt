@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -146,7 +147,7 @@ class SignInViewModel : ViewModel() {
                         )
 
                         db.collection("users")
-                            .document(firstName.value+"_"+middleName.value+"_"+lastName.value)
+                            .document((firstName.value+"_"+middleName.value+"_"+lastName.value).replace("__","_"))
                             .set(user)
                             .addOnSuccessListener { documentReference ->
                                 // Sign-in and data submission successful
@@ -319,6 +320,11 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
     var dayMenuVisible by remember {mutableStateOf(false)}
     var monthMenuVisible by remember {mutableStateOf(false)}
 
+
+    var buttonClicked by remember { mutableStateOf(false) }
+    var datePickerClicked by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+
     Column(
         Modifier.fillMaxWidth().padding(top = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -326,32 +332,41 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
         OutlinedTextField(
             value = viewModel.firstName.value,
             onValueChange = { viewModel.firstName.value = it },
-            label = { Text("First Name") }
+            label = { Text("First Name") },
+            isError =buttonClicked && viewModel.firstName.value.isBlank(), // Check if it's empty
+            singleLine = true // Set singleLine to improve UI for mandatory fields
         )
         OutlinedTextField(
             value = viewModel.middleName.value,
             onValueChange = { viewModel.middleName.value = it },
-            label = { Text("Middle Name") }
+            label = { Text("Middle Name") },
+            //isError = viewModel.firstName.value.isBlank(),
+            singleLine = true // Set singleLine to improv
         )
         OutlinedTextField(
             value = viewModel.lastName.value,
             onValueChange = { viewModel.lastName.value = it },
-            label = { Text("Last Name") }
+            label = { Text("Last Name") },
+            isError = buttonClicked && viewModel.lastName.value.isBlank(),
+            singleLine = true
         )
 
         OutlinedTextField(
             value = viewModel.phoneNumber.value,
             onValueChange = { viewModel.phoneNumber.value = it },
             label = { Text("Phone Number") },
-            isError = !viewModel.isPhoneNumberValid(viewModel.phoneNumber.value),
+            isError = buttonClicked && !viewModel.isPhoneNumberValid(viewModel.phoneNumber.value),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+            singleLine = true
             //visualTransformation = PasswordVisualTransformation()
         )
 
         OutlinedTextField(
             value = viewModel.fellowship.value,
             onValueChange = { viewModel.fellowship.value = it },
-            label = { Text("Fellowship") }
+            label = { Text("Fellowship") },
+            isError = buttonClicked && viewModel.fellowship.value.isBlank(),
+            singleLine = true
         )
 
         // Date Joined Button and Text
@@ -360,7 +375,9 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Button(
-                onClick = { mDatePickerDialog.show() },
+                onClick = { mDatePickerDialog.show()
+                    datePickerClicked = true
+                          },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0XFF0F9D58))
             ) {
                 Text(text = buttonText, color = Color.White)
@@ -432,11 +449,29 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             }
         }
 
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+
 
         Button(
             onClick = {
-                // Perform sign-in logic here
-                viewModel.performSignIn()
+                // Check if all mandatory fields are filled
+                if (viewModel.firstName.value.isBlank() ||
+                    viewModel.lastName.value.isBlank() ||
+                    viewModel.phoneNumber.value.isBlank()) {
+
+                    // Update the errorMessage with the error message
+                    errorMessage = "Please fill all mandatory fields."
+
+                } else {
+                    // Perform sign-in logic here
+                    viewModel.performSignIn()
+                }
             },
             modifier = Modifier.fillMaxWidth().
             padding(top = 16.dp).
@@ -444,6 +479,7 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
         ) {
             Text("Add Member")
         }
+
 
 
         viewModel.dateJoined.value = formattedDate.value;

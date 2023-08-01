@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 
 class AdminActivity : AppCompatActivity() {
@@ -41,10 +42,11 @@ class AdminActivity : AppCompatActivity() {
 
         sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
 
-        val phoneNumber = sharedPrefs.getString("phoneNumber", null)
-        val memberNumber = sharedPrefs.getString("memberNumber", null)
+        val phoneNumber = sharedPrefs.getString("phoneNumber", null) //
+        val memberNumber = sharedPrefs.getString("memberNumber", null) //
         val firstname = sharedPrefs.getString("firstname", null)
         val lastname = sharedPrefs.getString("lastname", null)
+        val usertype = sharedPrefs.getString("usertype", null)
 
         username_tv = findViewById(R.id.username_tv)
 
@@ -84,8 +86,16 @@ class AdminActivity : AppCompatActivity() {
 
         birthdays_card.setOnClickListener()
         {
+//            if(usertype === "secretary_admin")
+//            {
             val intent = Intent(this, Birthday::class.java)
             startActivity(intent)
+//            }
+//            else
+//            {
+//                Toast.makeText(this, "You have no rights to access this side! Praise God :)", Toast.LENGTH_SHORT).show()
+//
+//            }
         }
 
         statements_card.setOnClickListener()

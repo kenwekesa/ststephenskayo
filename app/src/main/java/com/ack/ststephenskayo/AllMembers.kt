@@ -43,11 +43,19 @@ class AllMembers : AppCompatActivity() {
                         "twenty_admin" -> document.getDouble("total_twenty_paid") ?: 0.0
                         else -> 0.0
                     }
+                    val totalWelfarePaid: Double = document.getDouble("total_welfare_paid")?:0.0;
+                    val totalTwentyPaid: Double = document.getDouble("total_twenty_paid")?:0.0
+
 
                     val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
 
                     val balance = if (dateJoined?.isNotEmpty() == true) {
-                        ((ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toDouble() - totalPaid).toDouble()
+                        when (usertype) {
+                            "welfare_admin" -> ((ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toDouble() - totalWelfarePaid)
+                            "twenty_admin" -> ((ChronoUnit.WEEKS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 20).toDouble() - totalTwentyPaid)
+                            else -> 0.0
+                        }
+
                     } else {
                         0.0
                     }

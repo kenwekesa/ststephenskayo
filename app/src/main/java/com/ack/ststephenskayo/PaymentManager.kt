@@ -79,7 +79,7 @@ class PaymentManager {
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val userDocument = querySnapshot.documents[0]
-                    val dateJoinedString = userDocument.getString("dateJoined")
+                    val dateJoinedString = userDocument.getString("dateJoined")?:LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString()
 
                     // Assuming the dateJoined format is "dd/MM/yyyy"
                     val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
@@ -164,7 +164,7 @@ class PaymentManager {
             .addOnSuccessListener { querySnapshot ->
                 if (!querySnapshot.isEmpty) {
                     val userDocument = querySnapshot.documents[0]
-                    val dateJoinedString = userDocument.getString("dateJoined")
+                    val dateJoinedString = userDocument.getString("dateJoined")?:LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).toString()
 
                     // Assuming the dateJoined format is "dd/MM/yyyy"
                     val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())

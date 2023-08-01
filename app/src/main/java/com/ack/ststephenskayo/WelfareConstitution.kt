@@ -18,91 +18,44 @@ class WelfareConstitution : AppCompatActivity() {
     }
 
     private fun buildConstitutionStStephensKAYO(): String {
-        return """
-            Constitution of St. Stephens KAYO
+        val constitution = """
+ST STEPHEN CHURCH YOUTH WELFARE- KAYO
 
-            Preamble:
-            We, the members of St. Stephens KAYO, in order to promote the welfare, unity, and common interests of our members, and to establish a framework for effective governance, do hereby adopt this constitution.
+Executive Committee:
+1. Chairperson - Maxwell Odhiambo
+2. Secretary - Esther Otieno
+3. Organizing Secretary - Allan Laban
+4. Legal Advisor - Kelvin King'ori
+5. Treasurer - Branice Matini
+6. Member - Stanley Mwaumba
+7. Member - Ann Wangare
 
-            Article I: Name and Nature of the Organization
-            Section 1: Name
-            The name of this organization shall be St. Stephens KAYO.
+Objectives:
+1. To promote solidarity and mutual cooperation among members.
+2. Assist members in times of needs, i.e., weddings, burials, and serious illness upon the committee assessment.
 
-            Section 2: Nature
-            St. Stephens KAYO is a non-profit, non-political, and non-discriminatory organization.
+Rules and Regulations:
+1. Registered member of St Stephen's Church Bamburi and KAYO.
+2. KAYO member should be up to date with his/her monthly subscription.
+3. Registration fee of Ksh 50 should be submitted to the treasurer annually.
+4. Every member should make an effort to punctually attend services.
+5. Every member should participate actively in KAYO activities.
+6. Ksh 100 should be paid before the second Sunday of a new month.
+7. Account statements will be issued every three months.
+8. A new member joining in the middle of a financial year will have to pay the subscriptions of the previous months of that financial year.
 
-            Article II: Mission and Objectives
-            Section 1: Mission
-            The mission of St. Stephens KAYO is to [state the primary mission and purpose of the organization].
+Benefits:
+1. A member gets a contribution of Ksh 5000 for his/her wedding as the principal member. The member should notify the committee one month before the wedding. The contribution will be disbursed upon assessment and approval by the executive committee.
+2. Ksh 5000 for the principal member upon a funeral, two weeks after notifying the welfare committee.
+3. Assistance for any serious illness of the principal member or nuclear family upon the assessment of the committee.
 
-            Section 2: Objectives
-            The objectives of St. Stephens KAYO are:
-            a) [Objective 1]
-            b) [Objective 2]
-            c) [Objective 3]
-            ... [add more objectives if needed]
+Cases that could result in exemption from the benefits:
+1. Non-contribution for the past three months.
+2. Unnotified exit from the association.
+3. Arrears of six months - No longer a member hence need to register afresh.
+4. One should pay previous months' dues to be eligible once again.
+""".trimIndent()
 
-            Article III: Membership
-            Section 1: Membership Eligibility
-            Membership in St. Stephens KAYO is open to all individuals who share a common interest in the objectives of the organization.
-
-            Section 2: Categories of Membership
-            There shall be the following categories of membership:
-            a) Regular Members: [Description of regular membership criteria]
-            b) Associate Members: [Description of associate membership criteria]
-            c) Honorary Members: [Description of honorary membership criteria]
-
-            Section 3: Rights and Privileges of Members
-            All members of St. Stephens KAYO shall have the right to [list the rights and privileges of members].
-
-            Section 4: Termination of Membership
-            Membership in St. Stephens KAYO may be terminated for reasons such as [list the grounds for termination].
-
-            Article IV: Organizational Structure
-            Section 1: Executive Committee
-            St. Stephens KAYO shall be governed by an Executive Committee composed of the following officers:
-            a) President
-            b) Vice President
-            c) Secretary
-            d) Treasurer
-            e) ... [add other officer positions if needed]
-
-            Section 2: Duties and Responsibilities
-            The duties and responsibilities of each officer shall be as follows:
-            a) President: [Description of the President's role]
-            b) Vice President: [Description of the Vice President's role]
-            c) Secretary: [Description of the Secretary's role]
-            d) Treasurer: [Description of the Treasurer's role]
-            e) ... [add descriptions for other officer roles if needed]
-
-            Article V: Meetings
-            Section 1: General Meetings
-            St. Stephens KAYO shall hold regular general meetings, such as [describe the frequency and purpose of general meetings].
-
-            Section 2: Special Meetings
-            Special meetings may be called by [list who can call special meetings] for the purpose of [describe the purpose of special meetings].
-
-            Article VI: Amendments
-            Section 1: Proposal
-            Amendments to this constitution may be proposed by [describe who can propose amendments].
-
-            Section 2: Approval
-            Proposed amendments shall be approved by [describe the approval process] and require a [describe the required majority] vote for adoption.
-
-            Article VII: Dissolution
-            Section 1: Dissolution
-            In the event of the dissolution of St. Stephens KAYO, all assets shall be distributed [describe the distribution of assets].
-
-            Article VIII: Ratification
-            This constitution shall be ratified and take effect upon approval by a majority vote of the members present at the [describe the meeting for ratification].
-
-            In witness whereof, we, the undersigned members of St. Stephens KAYO, hereby adopt and enact this constitution on this [date of ratification].
-
-            ______________________
-            President's Signature
-
-            ______________________
-            Secretary's Signature
-        """.trimIndent()
+        return constitution
     }
 }

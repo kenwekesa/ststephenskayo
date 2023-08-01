@@ -712,6 +712,22 @@ private fun openPdfFile(context: Context, fileUri: Uri) {
     if (intent.resolveActivity(context.packageManager) != null) {
         context.startActivity(intent)
     } else {
-        Toast.makeText(context, "No PDF viewer app found", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "No file viewer app found", Toast.LENGTH_SHORT).show()
     }
 }
+
+private fun openExcelFile(context: Context, fileUri: Uri) {
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(fileUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        // Add the following line if the Excel file is in an older format (e.g., .xls)
+        // setDataAndType(fileUri, "application/vnd.ms-excel")
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+
+    if (intent.resolveActivity(context.packageManager) != null) {
+        context.startActivity(intent)
+    } else {
+        Toast.makeText(context, "No Excel viewer app found", Toast.LENGTH_SHORT).show()
+    }
+}
+
