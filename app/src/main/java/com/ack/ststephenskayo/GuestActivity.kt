@@ -74,34 +74,42 @@ class GuestActivity : AppCompatActivity() {
                     "Time: 11:00 am to 1:00 pm\n" +
                     "Language: Kiswahili\n" +
                     "We invite you to join us in worship and fellowship during these designated service hours. Feel free to engage, participate, and connect with the vibrant community here at ACK St. Stephens Bamburi. If you have any questions or need further information, please don't hesitate to reach out to our Youth Department. We look forward to having you with us!"),
-            listOf("As the Youth Department of ACK St. Stephens Bamburi, we organize various annual activities to engage, empower, and inspire our youth community. Here is an updated example of our annual activities:\n" +
-                    "\n" +
-                    "Sports Tournament:\n" +
-                    "\n" +
-                    "Description: A friendly competition where youth participate in various sports activities such as football, basketball, and volleyball.\n" +
-                    "Date: March 20-21\n" +
-                    "Location: Church sports grounds.\n" +
-                    "Talent Show:\n" +
-                    "\n" +
-                    "Description: An exciting event showcasing the talents and creativity of our youth, including music, dance, poetry, and drama performances.\n" +
-                    "Date: May 10\n" +
-                    "Location: Church auditorium.\n" +
-                    "Community Service Day:\n" +
-                    "\n" +
-                    "Description: A day dedicated to serving the community through activities like volunteering at local charities, cleaning up public spaces, or organizing donation drives.\n" +
-                    "Date: September 5\n" +
-                    "Location: Various locations within the community.\n" +
-                    "Leadership Conference:\n" +
-                    "\n" +
-                    "Description: A conference aimed at equipping and empowering young leaders with valuable skills, knowledge, and inspiration.\n" +
-                    "Date: November 15-17\n" +
-                    "Location: Church conference hall.\n" +
-                    "Youth Retreat:\n" +
-                    "\n" +
-                    "Description: A weekend retreat focused on spiritual growth, team-building, and personal development.\n" +
-                    "Date: December 10-12\n" +
-                    "Location: Retreat Center in a serene natural environment.\n" +
-                    "Please note that these dates and activities are for illustrative purposes only. The actual annual activities and their specific dates may vary each year. Stay connected with our Youth Department to receive updated information and invitations to these exciting events throughout the year. We look forward to your active participation!")
+            listOf(
+                """
+As the Youth Department of ACK St. Stephens Bamburi, we organize various annual activities to engage, empower, and inspire our youth community. Here is an updated example of our annual activities:
+
+St. Stephen's Anglican Church Youth Calendar of Events 2023
+
+**January**
+- December Babies Birthday Celebration (Church)
+
+**March**
+- 3rd March Babies Birthday Celebration (Thursday)
+
+**April**
+- 2nd April Babies Birthday Celebration (Sunday)
+
+**May**
+- 18th May Babies Birthday Celebration (Church)
+- May Babies Birthday Celebration (Church) (21st June, Monday)
+
+**July**
+- In June Obesity Awareness Month (Church)
+
+**September**
+- 3rd August Birthday Celebration (Tuesday)
+
+**October**
+- 1st September Birthday Celebration (Thursday)
+- 14th Mentorship Session (Thursday)
+
+**November**
+- 5th October Birthday Celebration (Tuesday)
+
+**December**
+- 10th End of Year Party (Sunday)
+"""
+            )
         )
 
         override fun getGroupCount(): Int {

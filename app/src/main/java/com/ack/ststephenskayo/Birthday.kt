@@ -83,7 +83,7 @@ class Birthday : AppCompatActivity() {
         stringBuilder.append("🎉 *Birthday Celebrants:* 🎉\n\n")
 
         for ((index, usr) in userList.withIndex()) {
-            var name:String = usr.firstName+" "+usr.middleName+" "+usr.lastName
+            var name:String = usr.firstName+" "+usr.lastName
             stringBuilder.append("*${index + 1}. $name* 🎈\n")
 
         }
@@ -198,7 +198,7 @@ class UserAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         @SuppressLint("SetTextI18n")
         fun bind(user: Birthdayuser) {
-            textName.text = user.firstName+" "+user.middleName+" "+user.lastName
+            textName.text = user.firstName+" "+user.lastName
             textPhoneNumber.text = user.phoneNumber
         }
     }

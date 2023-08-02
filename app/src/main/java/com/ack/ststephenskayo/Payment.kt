@@ -21,8 +21,10 @@ import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -91,6 +93,9 @@ fun PaymentForm(context: Context, usertype:String) {
         }, mYear, mMonth, mDay
     )
 
+    var buttonClicked by remember { mutableStateOf(false) }
+    var datePickerClicked by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         Modifier.fillMaxWidth().padding(top = 64.dp),
@@ -100,7 +105,9 @@ fun PaymentForm(context: Context, usertype:String) {
         OutlinedTextField(
             value = paymentData.phoneNumber.value,
             onValueChange = { paymentData.phoneNumber.value = it },
-            label = { Text("Phone Number") }
+            label = { Text("Phone Number") },
+            isError = buttonClicked && paymentData.phoneNumber.value.isBlank(),
+            singleLine = true
         )
 
         Row(
@@ -108,7 +115,9 @@ fun PaymentForm(context: Context, usertype:String) {
             modifier = Modifier.padding(vertical = 8.dp)
         ) {
             Button(
-                onClick = { mDatePickerDialog.show() },
+                onClick = {
+                    datePickerClicked = true
+                    mDatePickerDialog.show() },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color(0XFF0F9D58))
             ) {
                 Text(text = "Date", color = Color.White)
@@ -117,20 +126,41 @@ fun PaymentForm(context: Context, usertype:String) {
                 text = formattedDate.value,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+                modifier = Modifier.padding(start = 8.dp),
+
+                )
         }
 
 
         OutlinedTextField(
             value = paymentData.amount.value,
             onValueChange = { paymentData.amount.value = it },
+            isError = buttonClicked && paymentData.amount.value.isBlank(),
             label = { Text("Amount") }
         )
 
         paymentData.date.value = formattedDate.value;
+
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = Color.Red,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
         Button(
             onClick = {
+                buttonClicked = true
+                if (paymentData.phoneNumber.value.isBlank()||
+                        !datePickerClicked
+                        )
+                    {
+                    //viewModel.phoneNumber.value.isBlank()) {
+
+                    // Update the errorMessage with the error message
+                    errorMessage = "Please fill all fields. They are mandatory."
+
+                } else {
                 // Fetch user name from Firestore
                 // Fetch user name from Firestore
                 fetchUserName(paymentData.phoneNumber.value) { userNameValue ->
@@ -143,7 +173,7 @@ fun PaymentForm(context: Context, usertype:String) {
                         userExists.value = false
                         showNoUserMessage(context)
                     }
-                }
+                }}
             },
             modifier = Modifier.fillMaxWidth()
                 .padding(top = 6.dp)

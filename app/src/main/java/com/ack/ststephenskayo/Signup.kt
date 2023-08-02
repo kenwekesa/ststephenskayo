@@ -44,6 +44,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -61,6 +62,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role.Companion.Button
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -322,8 +324,17 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
 
 
     var buttonClicked by remember { mutableStateOf(false) }
-    var datePickerClicked by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+    var datePickerClicked by remember { mutableStateOf(false)}
+    var dayPickerClicked by remember { mutableStateOf(false) }
+    var monthPickerClicked by remember { mutableStateOf(false) }
+
+    val firstNameError = remember { mutableStateOf(false) }
+    val lastNameError = remember { mutableStateOf(false) }
+    val fellowshipError = remember { mutableStateOf(false) }
+    val phoneNumberError = remember { mutableStateOf(false) }
+    val datePickerError = remember { mutableStateOf(false) }
+
+        var errorMessage by remember { mutableStateOf("") }
 
     Column(
         Modifier.fillMaxWidth().padding(top = 64.dp),
@@ -333,8 +344,10 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             value = viewModel.firstName.value,
             onValueChange = { viewModel.firstName.value = it },
             label = { Text("First Name") },
-            isError =buttonClicked && viewModel.firstName.value.isBlank(), // Check if it's empty
-            singleLine = true // Set singleLine to improve UI for mandatory fields
+            isError = firstNameError.value, // Check if it's empty
+            singleLine = true, // Set singleLine to improve UI for mandatory fields
+            // Add styling to indicate error in red
+            textStyle = if (firstNameError.value) TextStyle(color = Color.Red) else LocalTextStyle.current
         )
         OutlinedTextField(
             value = viewModel.middleName.value,
@@ -347,17 +360,21 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             value = viewModel.lastName.value,
             onValueChange = { viewModel.lastName.value = it },
             label = { Text("Last Name") },
-            isError = buttonClicked && viewModel.lastName.value.isBlank(),
-            singleLine = true
+            isError = lastNameError.value,//buttonClicked && viewModel.lastName.value.isBlank(),
+            singleLine = true,
+            textStyle = if (lastNameError.value) TextStyle(color = Color.Red) else LocalTextStyle.current
+
         )
 
         OutlinedTextField(
             value = viewModel.phoneNumber.value,
             onValueChange = { viewModel.phoneNumber.value = it },
             label = { Text("Phone Number") },
-            isError = buttonClicked && !viewModel.isPhoneNumberValid(viewModel.phoneNumber.value),
+            isError = phoneNumberError.value || !viewModel.isPhoneNumberValid(viewModel.phoneNumber.value),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            singleLine = true
+            singleLine = true,
+            textStyle = if (phoneNumberError.value || !viewModel.isPhoneNumberValid(viewModel.phoneNumber.value)) TextStyle(color = Color.Red) else LocalTextStyle.current
+
             //visualTransformation = PasswordVisualTransformation()
         )
 
@@ -365,8 +382,10 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             value = viewModel.fellowship.value,
             onValueChange = { viewModel.fellowship.value = it },
             label = { Text("Fellowship") },
-            isError = buttonClicked && viewModel.fellowship.value.isBlank(),
-            singleLine = true
+            isError = fellowshipError.value,//buttonClicked && viewModel.fellowship.value.isBlank(),
+            singleLine = true,
+            textStyle = if (fellowshipError.value) TextStyle(color = Color.Red) else LocalTextStyle.current
+
         )
 
         // Date Joined Button and Text
@@ -398,7 +417,9 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             )
             Box {
                 OutlinedButton(
-                    onClick = { dayMenuVisible = true },
+                    onClick = {
+                        dayPickerClicked = true
+                        dayMenuVisible = true },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text(selectedDayOfBirth.value ?: "Day")
@@ -424,7 +445,11 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             }
             Box {
                 OutlinedButton(
-                    onClick = { monthMenuVisible = true }
+                    onClick = {
+
+                        monthPickerClicked = true
+                        monthMenuVisible = true
+                    }
                 ) {
                     Text(selectedMonthOfBirth.value ?: "Month")
                 }
@@ -461,9 +486,40 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
         Button(
             onClick = {
                 // Check if all mandatory fields are filled
+                if (viewModel.firstName.value.isBlank()) {
+                    firstNameError.value = true
+                } else {
+                    firstNameError.value = false
+                }
+
+                if (viewModel.lastName.value.isBlank()) {
+                    lastNameError.value = true
+                } else {
+                    lastNameError.value = false
+                }
+
+                if (viewModel.fellowship.value.isBlank()) {
+                    fellowshipError.value = true
+                } else {
+                    fellowshipError.value = false
+                }
+
+                if (viewModel.phoneNumber.value.isBlank()) {
+                    phoneNumberError.value = true
+                } else {
+                    phoneNumberError.value = false
+                }
+                // Similarly, check and set error states for other fields
+
+
+
                 if (viewModel.firstName.value.isBlank() ||
                     viewModel.lastName.value.isBlank() ||
-                    viewModel.phoneNumber.value.isBlank()) {
+                    viewModel.phoneNumber.value.isBlank()||
+                    !datePickerClicked ||
+                    !dayPickerClicked ||
+                    !monthPickerClicked
+                ) {
 
                     // Update the errorMessage with the error message
                     errorMessage = "Please fill all mandatory fields."
