@@ -1,5 +1,6 @@
 package com.ack.ststephenskayo
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
@@ -33,6 +34,8 @@ class AllMembers : AppCompatActivity() {
 
                 for (document in querySnapshot) {
                     val id = document.id
+                    val phoneNumber = document.getString("phoneNumber")?:""
+                    val fellowship = document.getString("fellowship")?:"No fellowship yet"
                     val fname = document.getString("firstName") ?: ""
                     val sname = document.getString("lastName") ?: ""
 
@@ -62,7 +65,7 @@ class AllMembers : AppCompatActivity() {
 
                     //val balance = (ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toInt() - totalPaid;
 
-                    val member = Member(id, name, dateJoined, totalPaid, balance)
+                    val member = Member(id, name,phoneNumber,fellowship, dateJoined, totalPaid, balance)
                     membersList.add(member)
                 }
 
@@ -70,6 +73,20 @@ class AllMembers : AppCompatActivity() {
                 recyclerView.layoutManager = LinearLayoutManager(this)
                 val adapter = MembersAdapter(membersList)
                 recyclerView.adapter = adapter
+
+                // Set click listener for the RecyclerView items
+                adapter.setOnItemClickListener(object : MembersAdapter.OnItemClickListener {
+                    override fun onItemClick(member: Member) {
+                        // Handle the item click here
+                        val intent = Intent(this@AllMembers, ViewMember::class.java)
+                        intent.putExtra("phoneNumber", member.phoneNumber)
+                        intent.putExtra("memberName", member.name)
+                        intent.putExtra("memberDateJoined", member.dateJoined)
+                        intent.putExtra("memberTotalPaid", member.totalPaid)
+                        intent.putExtra("fellowship", member.fellowship)
+                        startActivity(intent)
+                    }
+                })
             }
             .addOnFailureListener { exception ->
                 // Handle any errors that occurred during fetching data

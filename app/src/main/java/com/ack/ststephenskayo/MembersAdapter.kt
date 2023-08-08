@@ -11,6 +11,20 @@ import com.ack.ststephenskayo.R
 class MembersAdapter(private val membersList: List<Member>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+
+    // Define an interface to handle item clicks
+    interface OnItemClickListener {
+        fun onItemClick(member: Member)
+    }
+
+    // Create a variable to hold the click listener
+    private var itemClickListener: OnItemClickListener? = null
+
+    // Setter method for the click listener
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.itemClickListener = listener
+    }
+
     companion object {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_MEMBER = 1
@@ -23,14 +37,17 @@ class MembersAdapter(private val membersList: List<Member>) :
                     .inflate(R.layout.header_item, parent, false)
                 HeaderViewHolder(headerView)
             }
+
             VIEW_TYPE_MEMBER -> {
                 val itemView = LayoutInflater.from(parent.context)
                     .inflate(R.layout.members_table_item, parent, false)
                 MemberViewHolder(itemView)
             }
+
             else -> throw IllegalArgumentException("Invalid view type")
         }
     }
+
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
@@ -38,6 +55,7 @@ class MembersAdapter(private val membersList: List<Member>) :
                 // Bind header views here
                 holder.bindHeader()
             }
+
             is MemberViewHolder -> {
                 val memberPosition = position - 1 // Subtract 1 to account for the header
                 val currentMember = membersList[memberPosition]
@@ -80,12 +98,26 @@ class MembersAdapter(private val membersList: List<Member>) :
         private val totalPaidTextView: TextView = itemView.findViewById(R.id.member_total_paid)
         private val balanceTextView: TextView = itemView.findViewById(R.id.member_balance)
 
-        fun bindMember(member: Member) {
-            // Bind member data to views here
-            nameTextView.text = member.name
-            dateJoinedTextView.text = member.dateJoined
-            totalPaidTextView.text = member.totalPaid.toString()
-            balanceTextView.text = member.balance.toString()
+
+            init {
+                // Set click listener for the member item
+                itemView.setOnClickListener {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        val clickedMember =
+                            membersList[position - 1] // Subtract 1 to account for the header
+                        itemClickListener?.onItemClick(clickedMember)
+                    }
+                }
+            }
+
+            fun bindMember(member: Member) {
+                // Bind member data to views here
+                nameTextView.text = member.name
+                dateJoinedTextView.text = member.dateJoined
+                totalPaidTextView.text = member.totalPaid.toString()
+                balanceTextView.text = member.balance.toString()
+            }
         }
     }
-}
+

@@ -457,7 +457,7 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel()) {
         viewModel.birthMonth.value = selectedMonthOfBirth.value
         viewModel.birthDate.value = selectedDayOfBirth.value
 
-        if (submissionStatus == SignInViewModel.SubmissionStatus.SUCCESS) {
+        if (submissionStatus == UpdateUserViewModel.SubmissionStatus.SUCCESS) {
             AlertDialog(
                 onDismissRequest = { viewModel.submissionStatus.value = null },
                 title = { Text("Success") },
