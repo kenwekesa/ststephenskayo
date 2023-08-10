@@ -6,6 +6,7 @@ import android.widget.DatePicker
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,6 +26,7 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,12 +59,18 @@ class UpdateUser : ComponentActivity() {
     private val updateUserViewModel: UpdateUserViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Retrieve the data sent from the previous activity
+        val phoneNumber = intent.getStringExtra("phoneNumber")
+
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                UpdateUserView(updateUserViewModel)
+                UpdateUserView(updateUserViewModel, phoneNumber.toString())
             }
         }
+
+        // Fetch the existing user details
+        updateUserViewModel.fetchExistingUserDetails(phoneNumber)
     }
 }
 
@@ -87,21 +95,42 @@ class UpdateUserViewModel : ViewModel() {
     }
 
     // Function to fetch existing user details based on phoneNumber
-    fun fetchExistingUserDetails() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val userSnapshot = fetchUser(phoneNumber.value)
-            if (userSnapshot != null && userSnapshot.exists()) {
-                val user = userSnapshot.data
-                firstName.value = user?.get("firstName") as? String ?: ""
-                lastName.value = user?.get("lastName") as? String ?: ""
-                fellowship.value = user?.get("fellowship") as? String ?: ""
-                middleName.value = user?.get("middleName") as? String ?: ""
-                birthDate.value = user?.get("birthDate") as? String ?: ""
-                birthMonth.value = user?.get("birthMonth") as? String ?: ""
-                // Update other fields as needed
-            } else {
-                // User not found or error occurred while fetching data
-                // You can show an error message or handle this case accordingly
+//    fun fetchExistingUserDetails() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            val userSnapshot = fetchUser(phoneNumber.value)
+//            if (userSnapshot != null && userSnapshot.exists()) {
+//                val user = userSnapshot.data
+//                firstName.value = user?.get("firstName") as? String ?: ""
+//                lastName.value = user?.get("lastName") as? String ?: ""
+//                fellowship.value = user?.get("fellowship") as? String ?: ""
+//                middleName.value = user?.get("middleName") as? String ?: ""
+//                birthDate.value = user?.get("birthDate") as? String ?: ""
+//                birthMonth.value = user?.get("birthMonth") as? String ?: ""
+//                // Update other fields as needed
+//            } else {
+//                // User not found or error occurred while fetching data
+//                // You can show an error message or handle this case accordingly
+//            }
+//        }
+//    }
+
+    // Fetch existing user details based on phoneNumber
+    fun fetchExistingUserDetails(phoneNo: String?) {
+        phoneNo?.let {
+            viewModelScope.launch(Dispatchers.IO) {
+                // Fetch user details based on the phone number
+                val userSnapshot = fetchUser(phoneNo)
+                if (userSnapshot != null && userSnapshot.exists()) {
+                    val user = userSnapshot.data
+                    // Update the mutable state variables with fetched data
+                    firstName.value = user?.get("firstName") as? String ?: ""
+                    lastName.value = user?.get("lastName") as? String ?: ""
+                    fellowship.value = user?.get("fellowship") as? String ?: ""
+                    middleName.value = user?.get("middleName") as? String ?: ""
+                    dateJoined.value = user?.get("dateJoined") as? String ?:""
+                    phoneNumber.value = phoneNo
+                    // Update other fields as needed
+                }
             }
         }
     }
@@ -119,6 +148,14 @@ class UpdateUserViewModel : ViewModel() {
             val userExists = fetchUser(phoneNumber.value)
             if (userExists != null) {
                 if (userExists.exists()) {
+
+                    val usrr = userExists.data
+                    val existingFirstName = usrr?.get("firstName") as? String ?: ""
+                    val existingMiddleName = usrr?.get("middleName") as? String ?: ""
+                    val existingLastName = usrr?.get("lastName") as? String ?: ""
+
+                    val documentPath = (existingFirstName + "_" + existingMiddleName + "_" + existingLastName).replace("__", "_")
+
                     try {
                         val db = FirebaseFirestore.getInstance()
                         val user = hashMapOf(
@@ -128,12 +165,14 @@ class UpdateUserViewModel : ViewModel() {
                             "fellowship" to fellowship.value,
                             "middleName" to middleName.value,
                             "birthDate" to birthDate.value,
-                            "birthMonth" to birthMonth.value
+                            "birthMonth" to birthMonth.value,
+                            "phoneNumber" to phoneNumber.value,
+                            "dateJoined" to dateJoined.value,
                             // Add other fields as needed
                         )
 
                         db.collection("users")
-                            .document((firstName.value + "_" + middleName.value + "_" + lastName.value).replace("__", "_"))
+                            .document(documentPath)
                             .update(user as Map<String, Any>)
                             .addOnSuccessListener {
                                 // Update successful
@@ -183,7 +222,7 @@ class UpdateUserViewModel : ViewModel() {
 }
 
 @Composable
-fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel()) {
+fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: String) {
 
 
     // val firstName = viewModel.firstName.value
@@ -212,6 +251,8 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel()) {
     mYear = mCalendar.get(Calendar.YEAR)
     mMonth = mCalendar.get(Calendar.MONTH)
     mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
+
+    formattedDate.value = viewModel.dateJoined.value;
 
     var buttonText = "Date Joined"
 
@@ -255,6 +296,21 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel()) {
         Modifier.fillMaxWidth().padding(top = 64.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+        // Add TopAppBar with title
+        TopAppBar(
+            title = {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp) // Add margin to create space below the title
+                ) {
+                    Text("Update user details...", color = Color.White) // Set text color to white
+                }
+            },
+            backgroundColor = Color(0xFF3F51B5) // Indigo color value
+        )
         OutlinedTextField(
             value = viewModel.firstName.value,
             onValueChange = { viewModel.firstName.value = it },
@@ -430,10 +486,10 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel()) {
 
                 if (viewModel.firstName.value.isBlank() ||
                     viewModel.lastName.value.isBlank() ||
-                    viewModel.phoneNumber.value.isBlank()||
-                    !datePickerClicked ||
-                    !dayPickerClicked ||
-                    !monthPickerClicked
+                    viewModel.phoneNumber.value.isBlank()
+
+
+
                 ) {
 
                     // Update the errorMessage with the error message
@@ -448,7 +504,7 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel()) {
             padding(top = 16.dp).
             padding(horizontal = 40.dp)
         ) {
-            Text("Add Member")
+            Text("Update member details")
         }
 
 

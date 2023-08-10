@@ -1,7 +1,9 @@
 package com.ack.ststephenskayo
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.LinearLayout
 import android.widget.TextView
 
 class ViewMember : AppCompatActivity() {
@@ -12,6 +14,8 @@ class ViewMember : AppCompatActivity() {
     private lateinit var datejoined_view:TextView
     private lateinit var phone_view:TextView
 
+    private lateinit var updateuser:LinearLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_member)
@@ -21,6 +25,7 @@ class ViewMember : AppCompatActivity() {
         datejoined_view=findViewById(R.id.datejoined_view)
         fellowship_view = findViewById(R.id.fellowship_view)
         totalpaid_view = findViewById(R.id.total_paid_view)
+        updateuser = findViewById(R.id.update_user)
 
         // Retrieve the data sent from the previous activity
         val phoneNumber = intent.getStringExtra("phoneNumber")
@@ -36,6 +41,13 @@ class ViewMember : AppCompatActivity() {
         fellowship_view.text = fellowship.toString()
 
 
+        updateuser.setOnClickListener()
+        {
+            val intent = Intent(this@ViewMember, UpdateUser::class.java)
+            intent.putExtra("phoneNumber", phoneNumber)
+
+            startActivity(intent)
+        }
 
     }
 }
