@@ -71,6 +71,8 @@ class UpdateUser : ComponentActivity() {
 
         // Fetch the existing user details
         updateUserViewModel.fetchExistingUserDetails(phoneNumber)
+
+
     }
 }
 
@@ -94,25 +96,7 @@ class UpdateUserViewModel : ViewModel() {
         ERROR
     }
 
-    // Function to fetch existing user details based on phoneNumber
-//    fun fetchExistingUserDetails() {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val userSnapshot = fetchUser(phoneNumber.value)
-//            if (userSnapshot != null && userSnapshot.exists()) {
-//                val user = userSnapshot.data
-//                firstName.value = user?.get("firstName") as? String ?: ""
-//                lastName.value = user?.get("lastName") as? String ?: ""
-//                fellowship.value = user?.get("fellowship") as? String ?: ""
-//                middleName.value = user?.get("middleName") as? String ?: ""
-//                birthDate.value = user?.get("birthDate") as? String ?: ""
-//                birthMonth.value = user?.get("birthMonth") as? String ?: ""
-//                // Update other fields as needed
-//            } else {
-//                // User not found or error occurred while fetching data
-//                // You can show an error message or handle this case accordingly
-//            }
-//        }
-//    }
+
 
     // Fetch existing user details based on phoneNumber
     fun fetchExistingUserDetails(phoneNo: String?) {
@@ -128,6 +112,9 @@ class UpdateUserViewModel : ViewModel() {
                     fellowship.value = user?.get("fellowship") as? String ?: ""
                     middleName.value = user?.get("middleName") as? String ?: ""
                     dateJoined.value = user?.get("dateJoined") as? String ?:""
+                    birthDate.value = user?.get("birthDate") as? String ?:""
+                    birthMonth.value = user?.get("birthMonth") as? String ?:""
+
                     phoneNumber.value = phoneNo
                     // Update other fields as needed
                 }
@@ -154,7 +141,7 @@ class UpdateUserViewModel : ViewModel() {
                     val existingMiddleName = usrr?.get("middleName") as? String ?: ""
                     val existingLastName = usrr?.get("lastName") as? String ?: ""
 
-                    val documentPath = (existingFirstName + "_" + existingMiddleName + "_" + existingLastName).replace("__", "_")
+                    val documentPath = userExists.id
 
                     try {
                         val db = FirebaseFirestore.getInstance()
@@ -254,12 +241,18 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
 
     formattedDate.value = viewModel.dateJoined.value;
 
+    // Set initial value of formattedDate
+    //formattedDate.value = viewModel.initialFormattedDate.value
+
     var buttonText = "Date Joined"
 
     val mDatePickerDialog = DatePickerDialog(
         context,
         { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            formattedDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+           // formattedDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+            val newFormattedDate = "$mDayOfMonth/${mMonth + 1}/$mYear"
+            formattedDate.value = newFormattedDate
+            viewModel.dateJoined.value = newFormattedDate
         }, mYear, mMonth, mDay
     )
 
@@ -291,6 +284,9 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
     val datePickerError = remember { mutableStateOf(false) }
 
     var errorMessage by remember { mutableStateOf("") }
+
+    selectedDayOfBirth.value = viewModel.birthDate.value
+    selectedMonthOfBirth.value = viewModel.birthMonth.value
 
     Column(
         Modifier.fillMaxWidth().padding(top = 64.dp),
@@ -407,6 +403,7 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
                             onClick = {
                                 selectedDayOfBirth.value = day
                                 dayMenuVisible = false
+                                viewModel.birthDate.value = day
                             }
                         ) {
                             Text(text = day)
@@ -436,6 +433,7 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
                             onClick = {
                                 selectedMonthOfBirth.value = month
                                 monthMenuVisible = false
+                                viewModel.birthMonth.value = month
                             }
                         ) {
                             Text(text = month)
@@ -510,8 +508,8 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
 
 
         viewModel.dateJoined.value = formattedDate.value;
-        viewModel.birthMonth.value = selectedMonthOfBirth.value
-        viewModel.birthDate.value = selectedDayOfBirth.value
+       // viewModel.birthMonth.value = selectedMonthOfBirth.value
+       // viewModel.birthDate.value = selectedDayOfBirth.value
 
         if (submissionStatus == UpdateUserViewModel.SubmissionStatus.SUCCESS) {
             AlertDialog(
