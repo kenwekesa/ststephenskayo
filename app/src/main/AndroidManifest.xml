@@ -20,6 +20,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.StStephensKayo"
         tools:targetApi="31">
+
+        <activity
+            android:name=".Liturgy"
+            android:exported="false" />
         <activity
             android:name=".ViewMember"
             android:exported="false" />

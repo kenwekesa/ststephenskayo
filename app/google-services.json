@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "684404417291",
-    "project_id": "ststephens-79572",
-    "storage_bucket": "ststephens-79572.appspot.com"
+    "project_number": "762781844043",
+    "project_id": "kayoandroidapp",
+    "storage_bucket": "kayoandroidapp.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:684404417291:android:9a0ffc8f251c6b02deb80e",
+        "mobilesdk_app_id": "1:762781844043:android:886fb31b07615f5a0a43ce",
         "android_client_info": {
           "package_name": "com.ack.ststephenskayo"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "684404417291-h83gcmf6rb6ci8egab9ipn4qc7fb7qpr.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAIlAoLsGUR7zSWYnHY8krRV8dRJ8TOmR4"
+          "current_key": "AIzaSyAKd4nNbHvD0MuFphxxJIvjG6G1qRVZysI"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "684404417291-h83gcmf6rb6ci8egab9ipn4qc7fb7qpr.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }
