@@ -95,7 +95,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Liturgy" />
+                    android:text="Prayer book" />
             </androidx.cardview.widget.CardView>
 
             <!-- Add more CardViews here with reduced font size and image size -->
