@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "894537962375",
-    "project_id": "kayo-85e2f",
-    "storage_bucket": "kayo-85e2f.appspot.com"
+    "project_number": "79179391222",
+    "project_id": "kayo-ap",
+    "storage_bucket": "kayo-ap.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:894537962375:android:dd795eb62e3046ba107922",
+        "mobilesdk_app_id": "1:79179391222:android:795a5ce15751eb7373ccd7",
         "android_client_info": {
           "package_name": "com.ack.ststephenskayo"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAWTh_sz7urOeMSjQfEms7lw8khHz1-iNU"
+          "current_key": "AIzaSyCnvaHV7j1jUI88ZelOE2ZZJ2N7zjwTJHQ"
         }
       ],
       "services": {
