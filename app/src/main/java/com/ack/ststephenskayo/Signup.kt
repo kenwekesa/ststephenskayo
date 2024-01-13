@@ -96,6 +96,8 @@ class SignInViewModel : ViewModel() {
     val middleName = mutableStateOf("")
     val phoneNumber = mutableStateOf("")
     val dateJoined = mutableStateOf("")
+    val openingTwentyBal = mutableStateOf("")
+    val openingWelBal = mutableStateOf("")
 
     val birthDate = mutableStateOf("")
     val birthMonth = mutableStateOf("")
@@ -141,6 +143,8 @@ class SignInViewModel : ViewModel() {
                             "middleName" to middleName.value,
                             "birthDate" to birthDate.value,
                             "birthMonth" to birthMonth.value,
+                            "openingWelfareBal" to openingWelBal.value,
+                            "openingTwentyBal" to openingTwentyBal.value,
                             "total_welfare_paid" to 0,
                             "total_twenty_paid" to 0,
                             "usertype" to "member",
@@ -332,6 +336,8 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
     val lastNameError = remember { mutableStateOf(false) }
     val fellowshipError = remember { mutableStateOf(false) }
     val phoneNumberError = remember { mutableStateOf(false) }
+    val welfareBalError = remember { mutableStateOf(false) }
+    val twentyBalError = remember { mutableStateOf(false) }
     val datePickerError = remember { mutableStateOf(false) }
 
         var errorMessage by remember { mutableStateOf("") }
@@ -377,6 +383,27 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
 
             //visualTransformation = PasswordVisualTransformation()
         )
+
+        OutlinedTextField(
+            value = viewModel.lastName.value,
+            onValueChange = { viewModel.openingWelBal.value = it },
+            label = { Text("Welfare Bal") },
+            isError = welfareBalError.value,//buttonClicked && viewModel.lastName.value.isBlank(),
+            singleLine = true,
+            textStyle = if (welfareBalError.value) TextStyle(color = Color.Red) else LocalTextStyle.current
+
+        )
+
+        OutlinedTextField(
+            value = viewModel.lastName.value,
+            onValueChange = { viewModel.openingTwentyBal.value = it },
+            label = { Text("Twenty Bal") },
+            isError = twentyBalError.value,//buttonClicked && viewModel.lastName.value.isBlank(),
+            singleLine = true,
+            textStyle = if (twentyBalError.value) TextStyle(color = Color.Red) else LocalTextStyle.current
+
+        )
+
 
         OutlinedTextField(
             value = viewModel.fellowship.value,
@@ -496,6 +523,18 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                     lastNameError.value = true
                 } else {
                     lastNameError.value = false
+                }
+
+                if (viewModel.openingWelBal.value.isBlank()) {
+                    welfareBalError.value = true
+                } else {
+                    welfareBalError.value = false
+                }
+
+                if (viewModel.openingTwentyBal.value.isBlank()) {
+                    twentyBalError.value = true
+                } else {
+                    twentyBalError.value = false
                 }
 
                 if (viewModel.fellowship.value.isBlank()) {

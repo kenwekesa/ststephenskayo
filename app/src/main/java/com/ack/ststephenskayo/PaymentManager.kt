@@ -88,7 +88,10 @@ class PaymentManager {
                     val currentDate = LocalDate.now()
                     val weeksSinceJoining = ChronoUnit.WEEKS.between(dateJoined, currentDate)
                     val totalTwentyPaid = userDocument.getLong("total_twenty_paid")?.toInt() ?: 0
-                    val expectedTwentyTotalPaid = (weeksSinceJoining * 20).toInt()
+                    //val expectedTwentyTotalPaid = (weeksSinceJoining * 20).toInt() + userDocument.getLong("twenty_opening_bal")?.toInt()
+                    val expectedTwentyTotalPaid = (weeksSinceJoining * 20) +
+                            (userDocument.getLong("twenty_opening_bal")?.toInt() ?: 0)
+
 
                     val isUpToDate = totalTwentyPaid >= expectedTwentyTotalPaid
                     val message = if (isUpToDate) {
@@ -173,7 +176,8 @@ class PaymentManager {
                     val currentDate = LocalDate.now()
                     val monthsSinceJoining = ChronoUnit.MONTHS.between(dateJoined, currentDate)
                     val totalWelfarePaid = userDocument.getLong("total_welfare_paid")?.toInt() ?: 0
-                    val expectedTotalPaid = (monthsSinceJoining * 100).toInt()
+                    val expectedTotalPaid = (monthsSinceJoining * 100).toInt() +
+                            (userDocument.getLong("welfare_opening_bal")?.toInt() ?: 0)
 
                     val isUpToDate = totalWelfarePaid >= expectedTotalPaid
                     val message = if (isUpToDate) {

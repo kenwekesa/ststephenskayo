@@ -77,8 +77,9 @@ class Statements : AppCompatActivity() {
         val expandableListView = findViewById<ExpandableListView>(R.id.expandableListView)
 
         // Replace the sample data with your actual data
-        val groupList = listOf("Welfare Statements", "20-20 Statements")
+        val groupList = listOf("Members","Welfare Statements", "20-20 Statements")
         val childList = mapOf(
+            "Members" to listOf("Members data pdf", "Members data excel"),
             "Welfare Statements" to listOf("Members balance report pdf", "Members balance report excel"),
             "20-20 Statements" to listOf("Members balance report pdf", "Members balance report excel")
         )
@@ -97,7 +98,21 @@ class Statements : AppCompatActivity() {
             // Perform actions based on the clicked child item
             // For example, you can open the document associated with the clicked child item
             // or show a message with the child item text
-            if(groupclicked == "Welfare Statements")
+            if(groupclicked == "Members")
+            {
+                if(clickedChild!= null && clickedChild.contains("pdf"))
+                {
+
+                    retrieveUserData("P","members")
+                }
+                else
+                {
+
+                    retrieveUserData("E", "members")
+                }
+
+            }
+           else if(groupclicked == "Welfare Statements")
             {
                 if(clickedChild!= null && clickedChild.contains("pdf"))
                 {
@@ -215,7 +230,7 @@ class Statements : AppCompatActivity() {
                                                 user.dateJoined,
                                                 dateFormatter
                                             ), LocalDate.now()
-                                        ) * 100).toDouble() - user.total_welfare_paid).toDouble()
+                                        ) * 100).toDouble() + user.welfare_opening_bal  - user.total_welfare_paid).toDouble()
                                     } else {
                                         0.0
                                     }
@@ -230,7 +245,7 @@ class Statements : AppCompatActivity() {
                                                 user.dateJoined,
                                                 dateFormatter
                                             ), LocalDate.now()
-                                        ) * 20).toDouble() - user.total_twenty_paid).toDouble()
+                                        ) * 20).toDouble()+user.twenty_opening_bal - user.total_twenty_paid).toDouble()
                                     } else {
                                         0.0
                                     }
@@ -240,7 +255,10 @@ class Statements : AppCompatActivity() {
                                     "dateJoined" to "${user.dateJoined}",
                                     "totalWelfare" to "${user.total_welfare_paid}",
                                     "totalTwenty" to "${user.total_twenty_paid}",
+                                    "twenty_opening_bal" to "${user.twenty_opening_bal}",
+                                    "welfare_opening_bal" to "${user.welfare_opening_bal}",
                                     "totalPaid" to "${totalPaid}",
+                                    "birthday" to "${user.birthday}",
                                     "balance" to balance,
 
                                     )
