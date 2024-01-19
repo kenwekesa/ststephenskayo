@@ -346,7 +346,11 @@ class Statements : AppCompatActivity() {
                                 "dateJoined" to "${user.dateJoined}",
                                 "totalWelfare" to "${user.total_welfare_paid}",
                                 "totalTwenty" to "${user.total_twenty_paid}",
-
+                                "fieldOfStudy" to "${user.fieldOfStudy}",
+                                "fellowship" to "${user.fellowship}",
+                                "phoneNumber" to "${user.phoneNumber}",
+                                "birthDate" to "${user.birthDate} , ${user.birthMonth}",
+                                "memberNumber" to "${user.memberNumber}",
                                 "birthday" to "${user.birthday}",
 
 
@@ -361,9 +365,9 @@ class Statements : AppCompatActivity() {
 
                     // Call the appropriate report generation function
                     if (report_type == "P") {
-                        generatePdfStatement(this@Statements, userDetailsList, "Members")
+                        generateMembersPdfStatement(this@Statements, userDetailsList, "Members")
                     } else if (report_type == "E") {
-                        generateExcelSheetStatement(this@Statements, userDetailsList, "Members")
+                        generateMembersExcelSheetStatement(this@Statements, userDetailsList, "Members")
                     }
                 } else {
                     Log.e("Firestore Error", "Error getting documents: ", task.exception)
@@ -785,6 +789,325 @@ fun generatePdfStatement(context: Context, userdetails: MutableList<Map<String, 
         Toast.makeText(context, "Error generating PDF file: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
+
+
+
+
+//--------------------------------------------------------------------------------------------------------
+@RequiresApi(Build.VERSION_CODES.Q)
+fun generateMembersExcelSheetStatement(context: Context, userdetails: MutableList<Map<String, Any?>>,title: String) {
+    try {
+
+        val uniqueId = UUID.randomUUID().toString()
+        val fileName = "${title}_$uniqueId.xls"
+
+        // Create a ContentValues object to store the file metadata
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/vnd.ms-excel")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/StStephens")
+        }
+
+        // Get the content resolver to insert the file
+        val contentResolver = context.contentResolver
+        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+        uri?.let { uri ->
+            // Open an output stream using the uri
+            val outputStream: OutputStream? = contentResolver.openOutputStream(uri)
+            if (outputStream != null) {
+                val writableWorkbook: WritableWorkbook = Workbook.createWorkbook(outputStream)
+                val sheet: WritableSheet = writableWorkbook.createSheet(title, 0)
+
+
+
+                sheet
+
+
+                // Create a writable font with bold style and increased size for the headers
+                val boldFont: WritableFont = WritableFont(WritableFont.ARIAL, 14, WritableFont.BOLD)
+
+                boldFont.colour = Colour.WHITE // Set font color for headers to white
+
+                // Create a writable cell format with the bold font
+                val boldCellFormat: WritableCellFormat = WritableCellFormat(boldFont)
+                boldCellFormat.alignment = Alignment.CENTRE // Center align the headers
+                boldCellFormat.setBackground(Colour.SKY_BLUE) // Set background color
+                boldCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN, Colour.WHITE)
+                boldCellFormat.verticalAlignment = VerticalAlignment.CENTRE
+
+
+                val dataFont: WritableFont = WritableFont(WritableFont.ARIAL, 12, WritableFont.NO_BOLD)
+                dataFont.colour = Colour.WHITE // Set font color for headers to white
+                // Create a writable cell format with the bold font
+                val dataCellFormat: WritableCellFormat = WritableCellFormat(dataFont)
+                dataCellFormat.alignment = Alignment.CENTRE // Center align the headers
+                dataCellFormat.setBackground(Colour.BLUE_GREY) // Set background color
+                dataCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN, Colour.WHITE)
+                dataCellFormat.verticalAlignment = VerticalAlignment.CENTRE
+
+
+
+
+
+                //----Title Cell----
+
+                // Create header row style and cell view
+                val titleFont = WritableFont(WritableFont.ARIAL, 15, WritableFont.BOLD)
+                titleFont.colour = Colour.WHITE // Set font color for headers to white
+
+                val titleCellFormat = WritableCellFormat(titleFont)
+
+                titleCellFormat.setBackground(Colour.DARK_BLUE) // Set background color
+                titleCellFormat.wrap = true
+
+                titleCellFormat.verticalAlignment = VerticalAlignment.CENTRE
+                titleCellFormat.alignment = Alignment.CENTRE
+                titleCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN, Colour.WHITE)
+                // Merge cells for the title row
+                sheet.mergeCells(0, 0, 4, 0) // Merge cells from column 0 to column 4 (all columns), row 0
+                // Add the title label to the merged cell
+                val titleCell = Label(0, 0, "ACK ST. STEPHENS KAYO ${title}", titleCellFormat)
+
+                sheet.addCell(titleCell)
+
+                // Create header row
+                // Create header row
+                val headerIndex: Label = Label(0, 1, "#", boldCellFormat)
+                val headerMemberNumber: Label = Label(1, 1, "Member Number",boldCellFormat)
+                val headerName: Label = Label(2, 1, "Name",boldCellFormat)
+                val headerPhoneNumber: Label = Label(3, 1, "Phone Number",boldCellFormat)
+                val headerDateOfJoining: Label = Label(4, 1, "Date Of Joining",boldCellFormat)
+                val headerFellowship: Label = Label(5, 1, "Fellowship",boldCellFormat)
+                val headerFieldOfStudy: Label = Label(6, 1, "FieldOfStudy",boldCellFormat)
+                val headerBirthDate: Label = Label(7, 1, "Birth Date",boldCellFormat)
+
+
+
+// Add the header labels to the sheet
+                sheet.addCell(headerIndex)
+                sheet.addCell(headerName)
+
+                sheet.addCell(headerDateOfJoining)
+                sheet.addCell(headerPhoneNumber)
+                sheet.addCell(headerBirthDate)
+                sheet.addCell(headerMemberNumber)
+                sheet.addCell(headerFellowship)
+                sheet.addCell(headerFieldOfStudy)
+
+
+
+                // Create data rows
+                var rowIndex = 2
+                for (usr in userdetails) {
+                    val indexCell: Label = Label(0, rowIndex, (rowIndex-1).toString(), dataCellFormat)
+                    val memberNumberCell: Label = Label(1, rowIndex, usr["memberNumber"].toString(), dataCellFormat)
+                    val nameCell: Label = Label(2, rowIndex, usr["name"].toString(), dataCellFormat)
+                    val phoneNumberCell: Label = Label(3, rowIndex, usr["phoneNumber"].toString(), dataCellFormat)
+                    val dateCell: Label = Label(4, rowIndex, usr["dateJoined"].toString(), dataCellFormat)
+                    val fellowshipCell: Label = Label(5, rowIndex, usr["fellowship"].toString(), dataCellFormat)
+                    val fieldOfStudyCell: Label = Label(6, rowIndex, usr["fieldOfStudy"].toString(), dataCellFormat) // Add the "Name" data to column 1
+                    val birthDateCell: Label = Label(7, rowIndex, usr["birthDate"].toString(), dataCellFormat)
+                    sheet.addCell(indexCell)
+                    sheet.addCell(nameCell)
+                    sheet.addCell(dateCell)
+                    sheet.addCell(birthDateCell)
+                    sheet.addCell(fellowshipCell)
+                    sheet.addCell(fieldOfStudyCell)
+                    sheet.addCell(phoneNumberCell)
+                    sheet.addCell(memberNumberCell)
+
+
+
+                    rowIndex++
+                }
+
+
+                // Auto-size the columns to fit the content
+                for (col in 0 until sheet.columns) {
+                    //sheet.autoSizeColumn(col)
+
+                }
+                // Manually calculate and set column widths based on content
+                for (col in 1 until sheet.columns) {
+                    val longestCellContent = sheet.getColumn(col).map { it.contents.length }.maxOrNull() ?: 10
+
+                    sheet.setColumnView(col, longestCellContent + 2) // Adding some padding for readability
+                }
+
+                // Calculate row heights based on content size and add padding
+                val padding = 20 // Adjust this value to set the padding
+                for (rowIndex in 0 until userdetails.size + 1) {
+                    sheet.setRowView(rowIndex, rowHeightWithPadding(sheet.getRowView(rowIndex), padding))
+                }
+
+                // Write and close the workbook
+                writableWorkbook.write()
+                writableWorkbook.close()
+
+                // Close the output stream
+                outputStream.close()
+                showSnackbarWithOpenButton(context, uri,"Excel report generated successfully!")
+
+                // Toast.makeText(context, "Excel file saved successfully!", Toast.LENGTH_SHORT).show()
+            } else {
+                // Handle error opening output stream
+                Log.e("Error", "Error opening output stream")
+                Toast.makeText(context, "Failed to save Excel file!", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            // Handle error creating URI
+            Log.e("Error", "Error creating URI")
+            Toast.makeText(context, "Failed to create file!", Toast.LENGTH_SHORT).show()
+        }
+    } catch (e: Exception) {
+        // Handle the exception
+        Log.e("Error", "Error generating Excel file: ${e.message}", e)
+        Toast.makeText(context, "Error generating Excel file: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+}
+// Function to set the border style for a cell format
+private fun setMembersBorderStyle(cellFormat: WritableCellFormat, border: Border, lineStyle: BorderLineStyle, color: Colour) {
+    cellFormat.setBorder(border, lineStyle)
+    cellFormat.setBorder(border,lineStyle,color)
+}
+
+// Helper function to calculate row height with padding
+fun rowMembersHeightWithPadding(row: CellView, padding: Int): Int {
+    val heightWithoutPadding = row.size
+    return heightWithoutPadding + padding
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<String, Any?>>, title: String) {
+    val uniqueId = UUID.randomUUID().toString()
+    val fileName = "${title}_$uniqueId.pdf"
+
+    // Create the document
+    val document = Document()
+    try {
+        // Create the PDF file in the StStephens directory
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/StStephens")
+        }
+
+        val contentResolver = context.contentResolver
+        val uri = contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+
+        uri?.let { uri ->
+            val outputStream = contentResolver.openOutputStream(uri)
+            if (outputStream != null) {
+                // Set up the PDF writer
+                PdfWriter.getInstance(document, outputStream)
+
+                // Open the document
+                document.open()
+
+                // Add the title to the document
+                val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18f, Font.UNDERLINE)
+                val titleParagraph = Paragraph("ACK ST. STEPHENS KAYO ${title}", titleFont)
+                titleParagraph.alignment = Paragraph.ALIGN_CENTER
+                titleParagraph.spacingAfter = 10f
+                document.add(titleParagraph)
+
+                // Create the table with 3 columns
+                val table = PdfPTable(5)
+
+                // Set table properties
+                table.widthPercentage = 100f
+                table.setHeaderRows(1) // The first row will be treated as the header
+
+                // Set column widths (adjust as needed)
+                table.setWidths(floatArrayOf(1f, 3f, 3f,3f,3f))
+
+                // Set table border color
+                table.defaultCell.borderColor = BaseColor.WHITE
+
+
+                val headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f, BaseColor.WHITE)
+                val dataFont = FontFactory.getFont(FontFactory.HELVETICA, 12f, BaseColor.WHITE)
+                // Define the heading row background color
+                val headingBackgroundColor = BaseColor(102, 0, 0)
+
+                // Add table headers with custom style
+                addCellWithCustomStyle(table, "#", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "memberNumber", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "Name", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "phoneNumber", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "Date Joined", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "Fellowship", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "Field Of study", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "BirthDate", headingBackgroundColor,headerFont)
+
+
+
+                // Define the data row background color
+                val dataBackgroundColor = BaseColor(255, 102, 102)
+
+                // Add data rows with custom style
+                var rowIndex = 1
+                for (user in userdetails) {
+                    addCellWithCustomStyle(table, rowIndex.toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["memberNumber"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["name"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["phoneNumber"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["dateJoined"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["fellowship"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["fieldOfStudy"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["birthDate"].toString(), dataBackgroundColor,dataFont)
+                    rowIndex++
+
+
+
+                }
+
+                // Add the table to the document
+                document.add(table)
+
+                // Close the document
+                document.close()
+
+                // Close the output stream
+                outputStream.close()
+
+                // Show the Snackbar with the 'Open' button
+                showSnackbarWithOpenButton(context, uri, "PDF report generated successfully!")
+                //Toast.makeText(context, "PDF file saved successfully!", Toast.LENGTH_SHORT).show()
+            } else {
+                // Handle error opening output stream
+                Log.e("Error", "Error opening output stream")
+                Toast.makeText(context, "Failed to save PDF file!", Toast.LENGTH_SHORT).show()
+            }
+        } ?: run {
+            // Handle error creating URI
+            Log.e("Error", "Error creating URI")
+            Toast.makeText(context, "Failed to create file!", Toast.LENGTH_SHORT).show()
+        }
+    } catch (e: Exception) {
+        // Handle the exception
+        Log.e("Error", "Error generating PDF file: ${e.message}", e)
+        Toast.makeText(context, "Error generating PDF file: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
