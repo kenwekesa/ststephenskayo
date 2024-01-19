@@ -7,6 +7,7 @@ data class UserModel(
     val phoneNumber: String = "",
     val dateJoined: String = "",
     val birthday: String = "",
+    val fieldOfStudy: String ="",
     val total_welfare_paid: Double = 0.0,
     val total_twenty_paid: Double = 0.0,
     val twenty_opening_bal: Double = 0.0,

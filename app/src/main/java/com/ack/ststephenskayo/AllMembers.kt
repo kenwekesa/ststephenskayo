@@ -48,14 +48,19 @@ class AllMembers : AppCompatActivity() {
                     }
                     val totalWelfarePaid: Double = document.getDouble("total_welfare_paid")?:0.0;
                     val totalTwentyPaid: Double = document.getDouble("total_twenty_paid")?:0.0
+                    //val totalTwentyOpeningBal: Double = document.getDouble("openingTwentyBal")?:0.0
+                    val totalTwentyOpeningBal: Double = document.getString("openingTwentyBal")?.toDoubleOrNull() ?: 0.0
+                    val totalWelfareOpeningBal: Double = document.getString("openingWelfareBal")?.toDoubleOrNull() ?: 0.0
+
+                    //val totalWelfareOpeningBal: Double = document.getDouble("openingWelfareBal")?:0.0
 
 
                     val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
 
                     val balance = if (dateJoined?.isNotEmpty() == true) {
                         when (usertype) {
-                            "welfare_admin" -> ((ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toDouble() - totalWelfarePaid)
-                            "twenty_admin" -> ((ChronoUnit.WEEKS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 20).toDouble() - totalTwentyPaid)
+                            "welfare_admin" -> ((ChronoUnit.MONTHS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 100).toDouble() - totalWelfarePaid) + totalWelfareOpeningBal
+                            "twenty_admin" -> ((ChronoUnit.WEEKS.between(LocalDate.parse(dateJoined, dateFormatter), LocalDate.now()) * 20).toDouble() - totalTwentyPaid) + totalTwentyOpeningBal
                             else -> 0.0
                         }
 

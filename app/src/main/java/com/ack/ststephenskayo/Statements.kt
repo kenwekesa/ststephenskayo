@@ -103,12 +103,12 @@ class Statements : AppCompatActivity() {
                 if(clickedChild!= null && clickedChild.contains("pdf"))
                 {
 
-                    retrieveUserData("P","members")
+                    retrieveMembers("P","members")
                 }
                 else
                 {
 
-                    retrieveUserData("E", "members")
+                    retrieveMembers("E", "members")
                 }
 
             }
@@ -276,6 +276,94 @@ class Statements : AppCompatActivity() {
                         } else if (report_type == "E") {
                             generateExcelSheetStatement(this@Statements, userDetailsList, report_title)
                         }
+                    }
+                } else {
+                    Log.e("Firestore Error", "Error getting documents: ", task.exception)
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Database retrieval", e.message, e)
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun retrieveMembers(report_type: String, report_category: String) {
+        try {
+            val firestore = FirebaseFirestore.getInstance()
+            firestore.collection("users").get().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userDetailsList: MutableList<Map<String, Any?>> = mutableListOf()
+                    if (task.result?.isEmpty == true) {
+                        // Handle the case when the QuerySnapshot is empty (no documents found)
+                        Log.d("Firestore", "No documents found in the 'users' collection.")
+                    } else {
+                        var report_title = ""
+                        for (document in task.result!!) {
+                            val user = document.toObject(UserModel::class.java)
+
+
+                            var some = report_category
+//                            if (user != null) {
+//
+//
+//                                var balance = 0.0
+//                                var totalPaid = 0.0
+//                                val dateFormatter = DateTimeFormatter.ofPattern("[d/M/yyyy][dd/MM/yyyy]", Locale.getDefault())
+//                                if(report_category == "Welfare") {
+//
+//                                    report_title = "Welfare Report"
+//                                    totalPaid = user.total_welfare_paid
+//                                    balance = if (user.dateJoined?.isNotEmpty() == true) {
+//                                        ((ChronoUnit.MONTHS.between(
+//                                            LocalDate.parse(
+//                                                user.dateJoined,
+//                                                dateFormatter
+//                                            ), LocalDate.now()
+//                                        ) * 100).toDouble() + user.welfare_opening_bal  - user.total_welfare_paid).toDouble()
+//                                    } else {
+//                                        0.0
+//                                    }
+//                                }
+//                                else if(report_category == "Twenty")
+//                                {
+//                                    report_title = "TWENTY-TWENTY STATEMENTS"
+//                                    totalPaid = user.total_twenty_paid
+//                                    balance = if (user.dateJoined?.isNotEmpty() == true) {
+//                                        ((ChronoUnit.WEEKS.between(
+//                                            LocalDate.parse(
+//                                                user.dateJoined,
+//                                                dateFormatter
+//                                            ), LocalDate.now()
+//                                        ) * 20).toDouble()+user.twenty_opening_bal - user.total_twenty_paid).toDouble()
+//                                    } else {
+//                                        0.0
+//                                    }
+//                                }
+
+                            val tempObject = mapOf(
+                                "name" to "${user.firstName} ${user.lastName}",
+                                "dateJoined" to "${user.dateJoined}",
+                                "totalWelfare" to "${user.total_welfare_paid}",
+                                "totalTwenty" to "${user.total_twenty_paid}",
+
+                                "birthday" to "${user.birthday}",
+
+
+                                )
+                            userDetailsList.add(tempObject)
+                        }
+                        // Rest of the code remains the same...
+                        // ... (the data processing part)
+                        // You can keep the existing code that processes the retrieved data
+                        // and adds it to the userDetailsList.
+                    }
+
+                    // Call the appropriate report generation function
+                    if (report_type == "P") {
+                        generatePdfStatement(this@Statements, userDetailsList, "Members")
+                    } else if (report_type == "E") {
+                        generateExcelSheetStatement(this@Statements, userDetailsList, "Members")
                     }
                 } else {
                     Log.e("Firestore Error", "Error getting documents: ", task.exception)
