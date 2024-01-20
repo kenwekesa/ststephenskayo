@@ -1006,7 +1006,7 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                 document.open()
 
                 // Add the title to the document
-                val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18f, Font.UNDERLINE)
+                val titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14f, Font.UNDERLINE)
                 val titleParagraph = Paragraph("ACK ST. STEPHENS KAYO ${title}", titleFont)
                 titleParagraph.alignment = Paragraph.ALIGN_CENTER
                 titleParagraph.spacingAfter = 10f
@@ -1020,14 +1020,14 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                 table.setHeaderRows(1) // The first row will be treated as the header
 
                 // Set column widths (adjust as needed)
-                table.setWidths(floatArrayOf(1f, 3f, 3f,3f,3f))
+                table.setWidths(floatArrayOf(1f, 3f, 3f,3f,3f,3f,3f,3f))
 
                 // Set table border color
                 table.defaultCell.borderColor = BaseColor.WHITE
 
 
-                val headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16f, BaseColor.WHITE)
-                val dataFont = FontFactory.getFont(FontFactory.HELVETICA, 12f, BaseColor.WHITE)
+                val headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12f, BaseColor.WHITE)
+                val dataFont = FontFactory.getFont(FontFactory.HELVETICA, 10f, BaseColor.WHITE)
                 // Define the heading row background color
                 val headingBackgroundColor = BaseColor(102, 0, 0)
 

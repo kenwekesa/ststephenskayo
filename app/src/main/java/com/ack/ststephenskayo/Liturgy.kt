@@ -26,32 +26,84 @@ class Liturgy : AppCompatActivity() {
         fetchDataFromFirestore()
     }
 
+//    private fun fetchDataFromFirestore() {
+//        val firestore = FirebaseFirestore.getInstance()
+//
+//        // Example: Assuming you have a collection called "liturgyData"
+//        val liturgyRef = firestore.collection("liturgyData").document("data")
+//
+//        liturgyRef.get().addOnSuccessListener { documentSnapshot ->
+//            val items = documentSnapshot.toObject(ItemsData::class.java)
+//            items?.let {
+//                adapter.updateDataList(it.items)
+//            }
+//        }
+//    }
+
+
+//    private fun fetchDataFromFirestore() {
+//        val firestore = FirebaseFirestore.getInstance()
+//
+//        // Assuming your Firestore collection is "liturgyData" and document ID is "your_document_id"
+//        val liturgyRef = firestore.collection("liturgyData").document("your_document_id")
+//
+//        liturgyRef.get().addOnSuccessListener { documentSnapshot ->
+//            if (documentSnapshot.exists()) {
+//                val articles = documentSnapshot.get("articles") as? List<Map<String, Any>>
+//                articles?.let {
+//                    // Assuming you have an adapter for your ExpandableListView
+//                    adapter.updateDataList(it)
+//                }
+//            }
+//        }
+//    }
+
     private fun fetchDataFromFirestore() {
         val firestore = FirebaseFirestore.getInstance()
 
-        // Example: Assuming you have a collection called "liturgyData"
-        val liturgyRef = firestore.collection("liturgyData").document("data")
+        // Assuming your Firestore collection is "liturgyData" and document ID is "your_document_id"
+        val liturgyRef = firestore.collection("liturgyData").document("your_document_id")
 
         liturgyRef.get().addOnSuccessListener { documentSnapshot ->
-            val items = documentSnapshot.toObject(ItemsData::class.java)
-            items?.let {
-                adapter.updateDataList(it.items)
+            if (documentSnapshot.exists()) {
+                val articles = documentSnapshot.get("articles") as? List<Map<String, Any>>
+
+                // Convert the list of maps to a list of Item objects
+                val itemList = articles?.map { map ->
+                    Item(
+                        map["article"] as? Int ?: 0,
+                        map["title"] as? String ?: "",
+                        map["content"] as? String ?: ""
+                    )
+                } ?: emptyList()
+
+                // Update the adapter with the list of Item objects
+                adapter.updateDataList(itemList)
             }
         }
     }
+    data class ItemsData(
+        val items: List<Item>
+    )
 
-    data class ItemsData(val items: List<Item>)
-    {
-        constructor() : this(emptyList())
-    }
 
-    data class Item(val group: String, val child: List<String>)
+
+
+    data class Item(
+        val article: Int,
+        val title: String,
+        val content: String
+    )
 
     private inner class MyExpandableListAdapter : BaseExpandableListAdapter() {
         private var dataList: List<Item> = emptyList()
 
+//        fun updateDataList(items: List<Item>) {
+//            dataList = items
+//            notifyDataSetChanged()
+//        }
         fun updateDataList(items: List<Item>) {
-            dataList = items
+            dataList = items.toMutableList()
             notifyDataSetChanged()
         }
 
@@ -60,16 +112,19 @@ class Liturgy : AppCompatActivity() {
         }
 
         override fun getChildrenCount(groupPosition: Int): Int {
-            return dataList[groupPosition].child.size
+            // Each group has only one child
+            return 1
         }
 
         override fun getGroup(groupPosition: Int): Any {
-            return dataList[groupPosition].group
+            val item = dataList[groupPosition]
+            return "${item.title} ${item.article}"
         }
 
         override fun getChild(groupPosition: Int, childPosition: Int): Any {
-            return dataList[groupPosition].child[childPosition]
+            return dataList[groupPosition].content
         }
+
 
         override fun getGroupId(groupPosition: Int): Long {
             return groupPosition.toLong()
