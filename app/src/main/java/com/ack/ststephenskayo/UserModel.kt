@@ -11,6 +11,7 @@ data class UserModel(
     val memberNumber: String ="",
     val birthDate: String = "",
     val birthMonth: String = "",
+    val occupation: String = "",
     val fieldOfStudy: String ="",
     val total_welfare_paid: Double = 0.0,
     val total_twenty_paid: Double = 0.0,

@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModel
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -92,8 +93,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
-
-
+import java.util.regex.Pattern
 
 
 class Signup : AppCompatActivity() {
@@ -112,6 +112,7 @@ class SignInViewModel : ViewModel() {
     val fieldOfStudy = mutableStateOf("")
     val fellowship = mutableStateOf("")
 
+    val occupation = mutableStateOf("")
     val middleName = mutableStateOf("")
     val phoneNumber = mutableStateOf("")
     val dateJoined = mutableStateOf("")
@@ -171,6 +172,7 @@ class SignInViewModel : ViewModel() {
                             "openingWelfareBal" to openingWelBal.value,
                             "openingTwentyBal" to openingTwentyBal.value,
                             "fieldOfStudy" to fieldOfStudy.value,
+                            "occupation" to occupation.value,
                             "total_welfare_paid" to 0,
                             "total_twenty_paid" to 0,
                             "usertype" to "member",
@@ -250,6 +252,30 @@ class SignInViewModel : ViewModel() {
     }
 
 
+//    private fun generateUniqueNumber(callback: (String) -> Unit) {
+//        val db = FirebaseFirestore.getInstance()
+//        val configDocRef = db.collection("config").document("configDocument")
+//
+//        configDocRef.get().addOnCompleteListener { task ->
+//            if (task.isSuccessful) {
+//                val document = task.result
+//                if (document != null) {
+//                    val uniqueNumber = document.getString("lastUniqueNumber") ?: "KYO000"
+//                    val number = uniqueNumber.substring(3).toInt() + 1
+//                    val incrementedNumber = number.toString().padStart(3, '0')
+//                    val newUniqueNumber = "KYO$incrementedNumber"
+//                    callback(newUniqueNumber) // Invoke the callback with the new unique number
+//                } else {
+//                    Log.e("Signup", "Config document not found.")
+//                    callback("KYO000") // Invoke the callback with a default unique number when the document is not found
+//                }
+//            } else {
+//                Log.e("Signup", "Error getting config document: ${task.exception?.message}", task.exception)
+//                callback("KYO000") // Invoke the callback with a default unique number in case of error
+//            }
+//        }
+//    }
+
     private fun generateUniqueNumber(callback: (String) -> Unit) {
         val db = FirebaseFirestore.getInstance()
         val configDocRef = db.collection("config").document("configDocument")
@@ -258,18 +284,29 @@ class SignInViewModel : ViewModel() {
             if (task.isSuccessful) {
                 val document = task.result
                 if (document != null) {
-                    val uniqueNumber = document.getString("lastUniqueNumber") ?: "KYO000"
-                    val number = uniqueNumber.substring(3).toInt() + 1
-                    val incrementedNumber = number.toString().padStart(3, '0')
-                    val newUniqueNumber = "KYO$incrementedNumber"
+                    val uniqueNumber = document.getString("lastUniqueNumber") ?: "KY000/00"
+
+                    // Use a regular expression to extract the numeric part before the slash (/)
+                    val numericPartMatch = Pattern.compile("(\\d+)/").matcher(uniqueNumber)
+                    val numericPart = if (numericPartMatch.find()) numericPartMatch.group(1) else "000"
+
+                    val number = numericPart.toInt() + 1
+                    val incrementedNumber = number.toString().padStart(numericPart.length, '0')
+
+                    // Get the last two digits of the current year
+                    val currentYear = Calendar.getInstance().get(Calendar.YEAR) % 100
+                    val newUniqueNumber = "KY$incrementedNumber/$currentYear"
+
                     callback(newUniqueNumber) // Invoke the callback with the new unique number
                 } else {
+                    // Handle the case when the document is not found
                     Log.e("Signup", "Config document not found.")
-                    callback("KYO000") // Invoke the callback with a default unique number when the document is not found
+                    callback("KY000/00") // Invoke the callback with a default unique number
                 }
             } else {
+                // Handle the case when there is an error getting the config document
                 Log.e("Signup", "Error getting config document: ${task.exception?.message}", task.exception)
-                callback("KYO000") // Invoke the callback with a default unique number in case of error
+                callback("KY000/00") // Invoke the callback with a default unique number in case of error
             }
         }
     }
@@ -368,6 +405,7 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
     val phoneNumberError = remember { mutableStateOf(false) }
     val welfareBalError = remember { mutableStateOf(false) }
     val twentyBalError = remember { mutableStateOf(false) }
+    val occupationError = remember { mutableStateOf(false) }
     val datePickerError = remember { mutableStateOf(false) }
 
     var errorMessage by remember { mutableStateOf("") }
@@ -537,6 +575,17 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                     }
                 }
             }
+
+                OutlinedTextField(
+                    value = viewModel.occupation.value,
+                    onValueChange = { viewModel.occupation.value = it },
+                    label = { Text("Occupation") },
+                    isError = occupationError.value,//buttonClicked && viewModel.lastName.value.isBlank(),
+                    singleLine = true,
+                    textStyle = if (occupationError.value) TextStyle(color = Color.Red) else LocalTextStyle.current
+
+                )
+
             OutlinedTextField(
                 value = viewModel.fieldOfStudy.value,
                 onValueChange = { viewModel.fieldOfStudy.value = it },
@@ -735,7 +784,11 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                         viewModel.performSignIn()
                     }
                 },
-                modifier = Modifier.fillMaxWidth().padding(top = 16.dp).padding(horizontal = 40.dp)
+                modifier = Modifier.fillMaxWidth()
+                    .padding(top = 16.dp)
+                    .background(color = Color(0xFF196F3D))
+                   .padding(horizontal = 40.dp)
+
             ) {
                 Text("Add Member")
             }

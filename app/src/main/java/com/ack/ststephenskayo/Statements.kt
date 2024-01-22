@@ -257,6 +257,7 @@ class Statements : AppCompatActivity() {
                                     "totalTwenty" to "${user.total_twenty_paid}",
                                     "twenty_opening_bal" to "${user.twenty_opening_bal}",
                                     "welfare_opening_bal" to "${user.welfare_opening_bal}",
+
                                     "totalPaid" to "${totalPaid}",
                                     "birthday" to "${user.birthday}",
                                     "balance" to balance,
@@ -350,6 +351,7 @@ class Statements : AppCompatActivity() {
                                 "fellowship" to "${user.fellowship}",
                                 "phoneNumber" to "${user.phoneNumber}",
                                 "birthDate" to "${user.birthDate} , ${user.birthMonth}",
+                                "occupation" to "${user.occupation}",
                                 "memberNumber" to "${user.memberNumber}",
                                 "birthday" to "${user.birthday}",
 
@@ -865,7 +867,7 @@ fun generateMembersExcelSheetStatement(context: Context, userdetails: MutableLis
                 titleCellFormat.alignment = Alignment.CENTRE
                 titleCellFormat.setBorder(Border.ALL, BorderLineStyle.THIN, Colour.WHITE)
                 // Merge cells for the title row
-                sheet.mergeCells(0, 0, 4, 0) // Merge cells from column 0 to column 4 (all columns), row 0
+                sheet.mergeCells(0, 0, 8, 0) // Merge cells from column 0 to column 4 (all columns), row 0
                 // Add the title label to the merged cell
                 val titleCell = Label(0, 0, "ACK ST. STEPHENS KAYO ${title}", titleCellFormat)
 
@@ -879,8 +881,9 @@ fun generateMembersExcelSheetStatement(context: Context, userdetails: MutableLis
                 val headerPhoneNumber: Label = Label(3, 1, "Phone Number",boldCellFormat)
                 val headerDateOfJoining: Label = Label(4, 1, "Date Of Joining",boldCellFormat)
                 val headerFellowship: Label = Label(5, 1, "Fellowship",boldCellFormat)
-                val headerFieldOfStudy: Label = Label(6, 1, "FieldOfStudy",boldCellFormat)
-                val headerBirthDate: Label = Label(7, 1, "Birth Date",boldCellFormat)
+                val headerFieldOfStudy: Label = Label(6, 1, "Field Of Study",boldCellFormat)
+                val headerOccupation: Label = Label(7, 1, "Occupation",boldCellFormat)
+                val headerBirthDate: Label = Label(8, 1, "Birth Date",boldCellFormat)
 
 
 
@@ -894,6 +897,7 @@ fun generateMembersExcelSheetStatement(context: Context, userdetails: MutableLis
                 sheet.addCell(headerMemberNumber)
                 sheet.addCell(headerFellowship)
                 sheet.addCell(headerFieldOfStudy)
+                sheet.addCell(headerOccupation)
 
 
 
@@ -1013,14 +1017,14 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                 document.add(titleParagraph)
 
                 // Create the table with 3 columns
-                val table = PdfPTable(5)
+                val table = PdfPTable(9)
 
                 // Set table properties
                 table.widthPercentage = 100f
                 table.setHeaderRows(1) // The first row will be treated as the header
 
                 // Set column widths (adjust as needed)
-                table.setWidths(floatArrayOf(1f, 3f, 3f,3f,3f,3f,3f,3f))
+                table.setWidths(floatArrayOf(1f, 3f, 3f,3f,3f,3f,3f,3f,3f))
 
                 // Set table border color
                 table.defaultCell.borderColor = BaseColor.WHITE
@@ -1039,6 +1043,7 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                 addCellWithCustomStyle(table, "Date Joined", headingBackgroundColor,headerFont)
                 addCellWithCustomStyle(table, "Fellowship", headingBackgroundColor,headerFont)
                 addCellWithCustomStyle(table, "Field Of study", headingBackgroundColor,headerFont)
+                addCellWithCustomStyle(table, "Occupation", headingBackgroundColor,headerFont)
                 addCellWithCustomStyle(table, "BirthDate", headingBackgroundColor,headerFont)
 
 
@@ -1056,6 +1061,7 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                     addCellWithCustomStyle(table, user["dateJoined"].toString(), dataBackgroundColor,dataFont)
                     addCellWithCustomStyle(table, user["fellowship"].toString(), dataBackgroundColor,dataFont)
                     addCellWithCustomStyle(table, user["fieldOfStudy"].toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, user["occupation"].toString(), dataBackgroundColor,dataFont)
                     addCellWithCustomStyle(table, user["birthDate"].toString(), dataBackgroundColor,dataFont)
                     rowIndex++
 
