@@ -10,7 +10,9 @@
         android:id="@+id/groupTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
+        android:textSize="17sp"
+        android:padding="7dp"
+
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="@android:color/black" />
 

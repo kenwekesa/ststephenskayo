@@ -111,13 +111,13 @@ class SignInViewModel : ViewModel() {
     val lastName = mutableStateOf("")
     val fieldOfStudy = mutableStateOf("")
     val fellowship = mutableStateOf("")
-
+    val openingTwentyBal = mutableStateOf("")
+    val openingWelBal = mutableStateOf("")
     val occupation = mutableStateOf("")
     val middleName = mutableStateOf("")
     val phoneNumber = mutableStateOf("")
     val dateJoined = mutableStateOf("")
-    val openingTwentyBal = mutableStateOf("")
-    val openingWelBal = mutableStateOf("")
+
 
     val birthDate = mutableStateOf("")
     val birthMonth = mutableStateOf("")
@@ -547,16 +547,16 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                 singleLine = true,
                 textStyle = if (fellowshipError.value) TextStyle(color = Color.Red) else LocalTextStyle.current,
                 modifier = Modifier
-                    .focusRequester(focusRequester)
+//                    .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         fellowship_expanded = focusState.isFocused
                     }
 
             )
-            LaunchedEffect(focusRequester) {
-                focusRequester.requestFocus()
-                //fellowship_expanded=true
-            }
+//            LaunchedEffect(focusRequester) {
+//                focusRequester.requestFocus()
+//                //fellowship_expanded=true
+//            }
 
             DropdownMenu(
                 expanded = fellowship_expanded,
@@ -594,15 +594,15 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                 singleLine = true,
                 textStyle = if (fellowshipError.value) TextStyle(color = Color.Red) else LocalTextStyle.current,
                 modifier = Modifier
-                    .focusRequester(focusRequester)
+//                    .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         fostudy_expanded = focusState.isFocused
                     }
             )
-            LaunchedEffect(focusRequester) {
-                focusRequester.requestFocus()
-                //fostudy_expanded=true
-            }
+//            LaunchedEffect(focusRequester) {
+//                focusRequester.requestFocus()
+//                //fostudy_expanded=true
+//            }
 
             DropdownMenu(
                 expanded = fostudy_expanded,
@@ -786,7 +786,7 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
                 },
                 modifier = Modifier.fillMaxWidth()
                     .padding(top = 16.dp)
-                    .background(color = Color(0xFF196F3D))
+//                    .background(color = Color(0xFF196F3D))
                    .padding(horizontal = 40.dp)
 
             ) {

@@ -1024,14 +1024,14 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                 table.setHeaderRows(1) // The first row will be treated as the header
 
                 // Set column widths (adjust as needed)
-                table.setWidths(floatArrayOf(1f, 3f, 3f,3f,3f,3f,3f,3f,3f))
+                table.setWidths(floatArrayOf(1f, 2f, 3f,3f,2f,2f,3f,3f,2f))
 
                 // Set table border color
                 table.defaultCell.borderColor = BaseColor.WHITE
 
 
-                val headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12f, BaseColor.WHITE)
-                val dataFont = FontFactory.getFont(FontFactory.HELVETICA, 10f, BaseColor.WHITE)
+                val headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10f, BaseColor.WHITE)
+                val dataFont = FontFactory.getFont(FontFactory.HELVETICA, 8f, BaseColor.WHITE)
                 // Define the heading row background color
                 val headingBackgroundColor = BaseColor(102, 0, 0)
 
@@ -1054,7 +1054,7 @@ fun generateMembersPdfStatement(context: Context, userdetails: MutableList<Map<S
                 // Add data rows with custom style
                 var rowIndex = 1
                 for (user in userdetails) {
-                    addCellWithCustomStyle(table, rowIndex.toString(), dataBackgroundColor,dataFont)
+                    addCellWithCustomStyle(table, rowIndex.toString(), dataBackgroundColor,FontFactory.getFont(FontFactory.HELVETICA, 6f, BaseColor.WHITE))
                     addCellWithCustomStyle(table, user["memberNumber"].toString(), dataBackgroundColor,dataFont)
                     addCellWithCustomStyle(table, user["name"].toString(), dataBackgroundColor,dataFont)
                     addCellWithCustomStyle(table, user["phoneNumber"].toString(), dataBackgroundColor,dataFont)
