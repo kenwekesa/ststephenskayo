@@ -785,16 +785,16 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
                 singleLine = true,
                 textStyle = if (fellowshipError.value) TextStyle(color = Color.Red) else LocalTextStyle.current,
                 modifier = Modifier
-                    .focusRequester(focusRequester)
+//                    .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         fellowship_expanded = focusState.isFocused
                     }
 
             )
-            LaunchedEffect(focusRequester) {
-                focusRequester.requestFocus()
-                //fellowship_expanded=true
-            }
+//            LaunchedEffect(focusRequester) {
+//                focusRequester.requestFocus()
+//                //fellowship_expanded=true
+//            }
 
             DropdownMenu(
                 expanded = fellowship_expanded,
@@ -832,15 +832,15 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
                 singleLine = true,
                 textStyle = if (fellowshipError.value) TextStyle(color = Color.Red) else LocalTextStyle.current,
                 modifier = Modifier
-                    .focusRequester(focusRequester)
+//                    .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         fostudy_expanded = focusState.isFocused
                     }
             )
-            LaunchedEffect(focusRequester) {
-                focusRequester.requestFocus()
-                //fostudy_expanded=true
-            }
+//            LaunchedEffect(focusRequester) {
+//                focusRequester.requestFocus()
+//                //fostudy_expanded=true
+//            }
 
             DropdownMenu(
                 expanded = fostudy_expanded,
@@ -1009,9 +1009,9 @@ fun UpdateUserView(viewModel: UpdateUserViewModel = viewModel(), phoneNumber: St
                     if (viewModel.firstName.value.isBlank() ||
                         viewModel.lastName.value.isBlank() ||
                         viewModel.phoneNumber.value.isBlank() ||
-                        !datePickerClicked ||
-                        !dayPickerClicked ||
-                        !monthPickerClicked
+                        viewModel.dateJoined.value.isBlank() ||
+                        viewModel.birthDate.value.isBlank() ||
+                        viewModel.birthMonth.value.isBlank()
                     ) {
 
                         // Update the errorMessage with the error message

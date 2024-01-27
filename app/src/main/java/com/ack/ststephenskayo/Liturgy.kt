@@ -427,16 +427,170 @@
 
 
 
-
-
-
-
+//
+//
+//
+//
+//
+//package com.ack.ststephenskayo
+//
+//import android.os.Bundle
+//import android.text.Spannable
+//import android.text.SpannableString
+//import android.text.style.StyleSpan
+//import android.view.View
+//import android.view.ViewGroup
+//import android.widget.BaseExpandableListAdapter
+//import android.widget.ExpandableListView
+//import android.widget.TextView
+//import androidx.appcompat.app.AppCompatActivity
+//import com.google.firebase.firestore.FirebaseFirestore
+//
+//class Liturgy : AppCompatActivity() {
+//
+//    private lateinit var expandableListView: ExpandableListView
+//    private lateinit var adapter: MyExpandableListAdapter
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_guest)
+//
+//        expandableListView = findViewById(R.id.expandableListView)
+//        adapter = MyExpandableListAdapter()
+//        expandableListView.setAdapter(adapter)
+//
+//        // Fetch all documents from Firestore collection and update the adapter
+//        fetchAllDocumentsFromFirestore()
+//    }
+//
+//    private fun fetchAllDocumentsFromFirestore() {
+//        val firestore = FirebaseFirestore.getInstance()
+//
+//        // Assuming your Firestore collection is "liturgyData"
+//        val liturgyCollectionRef = firestore.collection("liturgyData")
+//
+//        liturgyCollectionRef.get().addOnSuccessListener { querySnapshot ->
+//            val itemList = mutableListOf<Item>()
+//
+//            for (documentSnapshot in querySnapshot.documents) {
+//                val article = documentSnapshot.getLong("artitle")?.toInt() ?: 0
+//                val title = documentSnapshot.getString("title") ?: ""
+//                val content = documentSnapshot.getString("content") ?: ""
+//
+//                itemList.add(Item(article, title, content))
+//            }
+//
+//            runOnUiThread {
+//                adapter.updateDataList(itemList)
+//            }
+//        }.addOnFailureListener { e ->
+//            // Handle failure, show an error message, log the exception, etc.
+//        }
+//    }
+//
+//    data class Item(
+//        val article: Int,
+//        val title: String,
+//        val content: String
+//    )
+//
+//    private inner class MyExpandableListAdapter : BaseExpandableListAdapter() {
+//        private var dataList: List<Item> = emptyList()
+//
+//        fun updateDataList(items: List<Item>) {
+//            dataList = items
+//            notifyDataSetChanged()
+//        }
+//
+//        override fun getGroupCount(): Int {
+//            return dataList.size
+//        }
+//
+//        override fun getChildrenCount(groupPosition: Int): Int {
+//            // Each group has only one child
+//            return 1
+//        }
+//
+//        override fun getGroup(groupPosition: Int): Any {
+//            val item = dataList[groupPosition]
+//            return "${item.title} ${item.article}"
+//        }
+//
+//        override fun getChild(groupPosition: Int, childPosition: Int): Any {
+//            return dataList[groupPosition].content
+//        }
+//
+//        override fun getGroupId(groupPosition: Int): Long {
+//            return groupPosition.toLong()
+//        }
+//
+//        override fun getChildId(groupPosition: Int, childPosition: Int): Long {
+//            return childPosition.toLong()
+//        }
+//
+//        override fun hasStableIds(): Boolean {
+//            return false
+//        }
+//
+//        override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean {
+//            return true
+//        }
+//
+//        override fun getGroupView(
+//            groupPosition: Int,
+//            isExpanded: Boolean,
+//            convertView: View?,
+//            parent: ViewGroup?
+//        ): View {
+//            val view = layoutInflater.inflate(R.layout.group_item_layout, parent, false)
+//            val groupTextView = view.findViewById<TextView>(R.id.groupTextView)
+//            val groupText = getGroup(groupPosition).toString()
+//
+//            val boldMarker = "**"
+//
+//            if (groupText.contains(boldMarker)) {
+//                val startIndex = groupText.indexOf(boldMarker)
+//                val endIndex = groupText.lastIndexOf(boldMarker) + boldMarker.length
+//
+//                if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+//                    val boldText = groupText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
+//                    val spannableString = SpannableString(boldText)
+//                    spannableString.setSpan(
+//                        StyleSpan(android.graphics.Typeface.BOLD),
+//                        0,
+//                        boldText.length,
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//                    groupTextView.text = spannableString
+//                }
+//            } else {
+//                groupTextView.text = groupText
+//            }
+//
+//            return view
+//        }
+//
+//        override fun getChildView(
+//            groupPosition: Int,
+//            childPosition: Int,
+//            isLastChild: Boolean,
+//            convertView: View?,
+//            parent: ViewGroup?
+//        ): View {
+//            val view = layoutInflater.inflate(R.layout.child_item_layout, parent, false)
+//            val childTextView = view.findViewById<TextView>(R.id.childTextView)
+//            childTextView.text = getChild(groupPosition, childPosition).toString()
+//            return view
+//        }
+//    }
+//}
 
 package com.ack.ststephenskayo
 
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.view.View
 import android.view.ViewGroup
@@ -444,6 +598,7 @@ import android.widget.BaseExpandableListAdapter
 import android.widget.ExpandableListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.google.firebase.firestore.FirebaseFirestore
 
 class Liturgy : AppCompatActivity() {
@@ -553,18 +708,31 @@ class Liturgy : AppCompatActivity() {
                 val endIndex = groupText.lastIndexOf(boldMarker) + boldMarker.length
 
                 if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
-                    val boldText = groupText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
-                    val spannableString = SpannableString(boldText)
+                    val formattedText = groupText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
+
+                    // Apply bold style to the formattedText
+                    val spannableString = SpannableString(groupText.replace("$boldMarker$formattedText$boldMarker", ""))
                     spannableString.setSpan(
                         StyleSpan(android.graphics.Typeface.BOLD),
                         0,
-                        boldText.length,
+                        formattedText.length,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
+
                     groupTextView.text = spannableString
+                    groupTextView.setTextColor(ContextCompat.getColor(this@Liturgy, R.color.dark_blue))
                 }
             } else {
-                groupTextView.text = groupText
+                // If there is no boldMarker, apply bold style to the entire text
+                val spannableString = SpannableString(groupText)
+                spannableString.setSpan(
+                    StyleSpan(android.graphics.Typeface.BOLD),
+                    0,
+                    groupText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                groupTextView.text = spannableString
             }
 
             return view
@@ -579,7 +747,49 @@ class Liturgy : AppCompatActivity() {
         ): View {
             val view = layoutInflater.inflate(R.layout.child_item_layout, parent, false)
             val childTextView = view.findViewById<TextView>(R.id.childTextView)
-            childTextView.text = getChild(groupPosition, childPosition).toString()
+            val childText = getChild(groupPosition, childPosition).toString()
+
+            val boldMarker = "**"
+
+            if (childText.contains(boldMarker)) {
+                val startIndex = childText.indexOf(boldMarker)
+                val endIndex = childText.lastIndexOf(boldMarker) + boldMarker.length
+
+                if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+                    val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
+
+                    // Apply bold style to the formattedText
+                    val spannableString = SpannableString(childText.replace("$boldMarker$formattedText$boldMarker", ""))
+                    spannableString.setSpan(
+                        StyleSpan(android.graphics.Typeface.BOLD),
+                        0,
+                        formattedText.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+
+                    // Apply dark blue color to the formattedText
+                    spannableString.setSpan(
+                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
+                        0,
+                        formattedText.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+
+                    childTextView.text = spannableString
+                }
+            } else {
+                // If there is no boldMarker, apply bold style to the entire text
+                val spannableString = SpannableString(childText)
+                spannableString.setSpan(
+                    StyleSpan(android.graphics.Typeface.BOLD),
+                    0,
+                    childText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                childTextView.text = spannableString
+            }
+
             return view
         }
     }
