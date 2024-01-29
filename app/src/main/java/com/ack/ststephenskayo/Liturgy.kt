@@ -585,6 +585,46 @@
 //    }
 //}
 
+
+//            if (childText.contains(boldMarker)) {
+//                val startIndex = childText.indexOf(boldMarker)
+//                val endIndex = childText.lastIndexOf(boldMarker) + boldMarker.length
+//
+//                if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+//                    val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
+//
+//                    // Apply bold and dark blue color to formattedText
+//                    val spannableString = SpannableString(childText)
+//                    spannableString.setSpan(
+//                        StyleSpan(android.graphics.Typeface.BOLD),
+//                        startIndex + boldMarker.length,  // Adjust start index for removed markers
+//                        endIndex - boldMarker.length,   // Adjust end index for removed markers
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//                    spannableString.setSpan(
+//                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
+//                        startIndex + boldMarker.length,
+//                        endIndex - boldMarker.length,
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//
+//                    // Apply bold style to the rest of the text
+//                    spannableString.setSpan(
+//                        StyleSpan(android.graphics.Typeface.BOLD),
+//                        0,
+//                        startIndex,
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//                    spannableString.setSpan(
+//                        StyleSpan(android.graphics.Typeface.BOLD),
+//                        endIndex,
+//                        childText.length,
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//
+//                    childTextView.text = spannableString
+//                }
+
 package com.ack.ststephenskayo
 
 import android.os.Bundle
@@ -630,7 +670,7 @@ class Liturgy : AppCompatActivity() {
             for (documentSnapshot in querySnapshot.documents) {
                 val article = documentSnapshot.getLong("artitle")?.toInt() ?: 0
                 val title = documentSnapshot.getString("title") ?: ""
-                val content = documentSnapshot.getString("content") ?: ""
+                val content = documentSnapshot.getString("content") ?.replace("\n", System.lineSeparator()) ?: ""
 
                 itemList.add(Item(article, title, content))
             }
@@ -738,6 +778,61 @@ class Liturgy : AppCompatActivity() {
             return view
         }
 
+//        override fun getChildView(
+//            groupPosition: Int,
+//            childPosition: Int,
+//            isLastChild: Boolean,
+//            convertView: View?,
+//            parent: ViewGroup?
+//        ): View {
+//            val view = layoutInflater.inflate(R.layout.child_item_layout, parent, false)
+//            val childTextView = view.findViewById<TextView>(R.id.childTextView)
+//            val childText = getChild(groupPosition, childPosition).toString()
+//
+//            val boldMarker = "**"
+//
+//            if (childText.contains(boldMarker)) {
+//                val startIndex = childText.indexOf(boldMarker)
+//                val endIndex = childText.lastIndexOf(boldMarker) + boldMarker.length
+//
+//                if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+//                    val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
+//
+//                    // Apply bold style to the entire text
+//                    val spannableString = SpannableString(childText)
+//                    spannableString.setSpan(
+//                        StyleSpan(android.graphics.Typeface.BOLD),
+//                        0,
+//                        childText.length,
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//
+//                    // Apply dark blue color only to the formattedText
+//                    spannableString.setSpan(
+//                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
+//                        startIndex,
+//                        endIndex - boldMarker.length * 2,  // Subtracting twice boldMarker.length to account for both markers
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//
+//                    childTextView.text = spannableString
+//                }
+//            } else {
+//                // If there is no boldMarker, apply bold style to the entire text
+//                val spannableString = SpannableString(childText)
+//                spannableString.setSpan(
+//                    StyleSpan(android.graphics.Typeface.BOLD),
+//                    0,
+//                    childText.length,
+//                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                )
+//
+//                childTextView.text = spannableString
+//            }
+//
+//            return view
+//        }
+
         override fun getChildView(
             groupPosition: Int,
             childPosition: Int,
@@ -758,8 +853,8 @@ class Liturgy : AppCompatActivity() {
                 if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
                     val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
 
-                    // Apply bold style to the formattedText
-                    val spannableString = SpannableString(childText.replace("$boldMarker$formattedText$boldMarker", ""))
+                    // Create a new spannableString without the markers
+                    val spannableString = SpannableString(formattedText)
                     spannableString.setSpan(
                         StyleSpan(android.graphics.Typeface.BOLD),
                         0,
@@ -774,8 +869,22 @@ class Liturgy : AppCompatActivity() {
                         formattedText.length,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
+                    // Combine the formattedText with the rest of the childText
+                    val resultString = SpannableString(childText.replace("$boldMarker$formattedText$boldMarker", formattedText))
+                    resultString.setSpan(
+                        StyleSpan(android.graphics.Typeface.BOLD),
+                        0,
+                        formattedText.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    resultString.setSpan(
+                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
+                        0,
+                        formattedText.length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
 
-                    childTextView.text = spannableString
+                    childTextView.text = resultString
                 }
             } else {
                 // If there is no boldMarker, apply bold style to the entire text
@@ -787,10 +896,18 @@ class Liturgy : AppCompatActivity() {
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
+                spannableString.setSpan(
+                    ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.black)),
+                    0,
+                    childText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
                 childTextView.text = spannableString
             }
 
             return view
         }
+
     }
 }
