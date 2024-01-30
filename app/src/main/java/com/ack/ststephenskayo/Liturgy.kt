@@ -625,6 +625,70 @@
 //                    childTextView.text = spannableString
 //                }
 
+
+
+
+
+
+//        override fun getChildView(
+//            groupPosition: Int,
+//            childPosition: Int,
+//            isLastChild: Boolean,
+//            convertView: View?,
+//            parent: ViewGroup?
+//        ): View {
+//            val view = layoutInflater.inflate(R.layout.child_item_layout, parent, false)
+//            val childTextView = view.findViewById<TextView>(R.id.childTextView)
+//            val childText = getChild(groupPosition, childPosition).toString()
+//
+//            val boldMarker = "**"
+//
+//            if (childText.contains(boldMarker)) {
+//                val startIndex = childText.indexOf(boldMarker)
+//                val endIndex = childText.lastIndexOf(boldMarker) + boldMarker.length
+//
+//                if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
+//                    val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
+//
+//                    // Apply bold style to the entire text
+//                    val spannableString = SpannableString(childText)
+//                    spannableString.setSpan(
+//                        StyleSpan(android.graphics.Typeface.BOLD),
+//                        0,
+//                        childText.length,
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//
+//                    // Apply dark blue color only to the formattedText
+//                    spannableString.setSpan(
+//                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
+//                        startIndex,
+//                        endIndex - boldMarker.length * 2,  // Subtracting twice boldMarker.length to account for both markers
+//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                    )
+//
+//                    childTextView.text = spannableString
+//                }
+//            } else {
+//                // If there is no boldMarker, apply bold style to the entire text
+//                val spannableString = SpannableString(childText)
+//                spannableString.setSpan(
+//                    StyleSpan(android.graphics.Typeface.BOLD),
+//                    0,
+//                    childText.length,
+//                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+//                )
+//
+//                childTextView.text = spannableString
+//            }
+//
+//            return view
+//        }
+
+
+
+
+
 package com.ack.ststephenskayo
 
 import android.os.Bundle
@@ -635,6 +699,7 @@ import android.text.style.StyleSpan
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
+import android.widget.Button
 import android.widget.ExpandableListView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -643,26 +708,78 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class Liturgy : AppCompatActivity() {
 
-    private lateinit var expandableListView: ExpandableListView
+//    private lateinit var expandableListView: ExpandableListView
+//    private lateinit var adapter: MyExpandableListAdapter
+//
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_guest)
+//
+//        expandableListView = findViewById(R.id.expandableListView)
+//        adapter = MyExpandableListAdapter()
+//        expandableListView.setAdapter(adapter)
+//
+//        // Fetch all documents from Firestore collection and update the adapter
+//        fetchAllDocumentsFromFirestore()
+//    }
+//
+//    private fun fetchAllDocumentsFromFirestore() {
+//        val firestore = FirebaseFirestore.getInstance()
+//
+//        // Assuming your Firestore collection is "liturgyData"
+//        val liturgyCollectionRef = firestore.collection("liturgyData")
+//
+//        liturgyCollectionRef.get().addOnSuccessListener { querySnapshot ->
+//            val itemList = mutableListOf<Item>()
+//
+//            for (documentSnapshot in querySnapshot.documents) {
+//                val article = documentSnapshot.getLong("artitle")?.toInt() ?: 0
+//                val title = documentSnapshot.getString("title") ?: ""
+//                val content = documentSnapshot.getString("content") ?.replace("\n", System.lineSeparator()) ?: ""
+//
+//                itemList.add(Item(article, title, content))
+//            }
+//
+//            runOnUiThread {
+//                adapter.updateDataList(itemList)
+//            }
+//        }.addOnFailureListener { e ->
+//            // Handle failure, show an error message, log the exception, etc.
+//        }
+//    }
+private lateinit var expandableListView: ExpandableListView
     private lateinit var adapter: MyExpandableListAdapter
+    private lateinit var switchButton: Button
+    private var isEnglish = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_guest)
+        setContentView(R.layout.activity_liturgy)
 
         expandableListView = findViewById(R.id.expandableListView)
         adapter = MyExpandableListAdapter()
         expandableListView.setAdapter(adapter)
 
-        // Fetch all documents from Firestore collection and update the adapter
-        fetchAllDocumentsFromFirestore()
+        switchButton = findViewById(R.id.switch_btn)
+        switchButton.setOnClickListener {
+            // Toggle between "Swahili" and "English"
+            isEnglish = !isEnglish
+            val buttonText = if (isEnglish) "English" else "Swahili"
+            switchButton.text = buttonText
+
+            // Change Firestore database name accordingly
+            val databaseName = if (isEnglish) "litaniaData" else "liturgyData"
+            fetchDocumentsFromFirestore(databaseName)
+        }
+
+        // Initially set the button text to "Swahili" and fetch documents from "liturgyData"
+        switchButton.text = "Swahili"
+        fetchDocumentsFromFirestore("liturgyData")
     }
 
-    private fun fetchAllDocumentsFromFirestore() {
+    private fun fetchDocumentsFromFirestore(databaseName: String) {
         val firestore = FirebaseFirestore.getInstance()
-
-        // Assuming your Firestore collection is "liturgyData"
-        val liturgyCollectionRef = firestore.collection("liturgyData")
+        val liturgyCollectionRef = firestore.collection(databaseName)
 
         liturgyCollectionRef.get().addOnSuccessListener { querySnapshot ->
             val itemList = mutableListOf<Item>()
@@ -670,7 +787,7 @@ class Liturgy : AppCompatActivity() {
             for (documentSnapshot in querySnapshot.documents) {
                 val article = documentSnapshot.getLong("artitle")?.toInt() ?: 0
                 val title = documentSnapshot.getString("title") ?: ""
-                val content = documentSnapshot.getString("content") ?.replace("\n", System.lineSeparator()) ?: ""
+                val content = documentSnapshot.getString("content")?.replace("\n", System.lineSeparator()) ?: ""
 
                 itemList.add(Item(article, title, content))
             }
@@ -778,60 +895,7 @@ class Liturgy : AppCompatActivity() {
             return view
         }
 
-//        override fun getChildView(
-//            groupPosition: Int,
-//            childPosition: Int,
-//            isLastChild: Boolean,
-//            convertView: View?,
-//            parent: ViewGroup?
-//        ): View {
-//            val view = layoutInflater.inflate(R.layout.child_item_layout, parent, false)
-//            val childTextView = view.findViewById<TextView>(R.id.childTextView)
-//            val childText = getChild(groupPosition, childPosition).toString()
-//
-//            val boldMarker = "**"
-//
-//            if (childText.contains(boldMarker)) {
-//                val startIndex = childText.indexOf(boldMarker)
-//                val endIndex = childText.lastIndexOf(boldMarker) + boldMarker.length
-//
-//                if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
-//                    val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
-//
-//                    // Apply bold style to the entire text
-//                    val spannableString = SpannableString(childText)
-//                    spannableString.setSpan(
-//                        StyleSpan(android.graphics.Typeface.BOLD),
-//                        0,
-//                        childText.length,
-//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                    )
-//
-//                    // Apply dark blue color only to the formattedText
-//                    spannableString.setSpan(
-//                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
-//                        startIndex,
-//                        endIndex - boldMarker.length * 2,  // Subtracting twice boldMarker.length to account for both markers
-//                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                    )
-//
-//                    childTextView.text = spannableString
-//                }
-//            } else {
-//                // If there is no boldMarker, apply bold style to the entire text
-//                val spannableString = SpannableString(childText)
-//                spannableString.setSpan(
-//                    StyleSpan(android.graphics.Typeface.BOLD),
-//                    0,
-//                    childText.length,
-//                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-//                )
-//
-//                childTextView.text = spannableString
-//            }
-//
-//            return view
-//        }
+
 
         override fun getChildView(
             groupPosition: Int,
@@ -853,38 +917,24 @@ class Liturgy : AppCompatActivity() {
                 if (startIndex != -1 && endIndex != -1 && startIndex < endIndex) {
                     val formattedText = childText.substring(startIndex + boldMarker.length, endIndex - boldMarker.length)
 
-                    // Create a new spannableString without the markers
-                    val spannableString = SpannableString(formattedText)
+                    // Create a new spannableString for the entire childText
+                    val spannableString = SpannableString(childText)
                     spannableString.setSpan(
                         StyleSpan(android.graphics.Typeface.BOLD),
-                        0,
-                        formattedText.length,
+                        startIndex,
+                        endIndex,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
 
-                    // Apply dark blue color to the formattedText
+                    // Apply dark blue color only to the formattedText
                     spannableString.setSpan(
                         ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
-                        0,
-                        formattedText.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    // Combine the formattedText with the rest of the childText
-                    val resultString = SpannableString(childText.replace("$boldMarker$formattedText$boldMarker", formattedText))
-                    resultString.setSpan(
-                        StyleSpan(android.graphics.Typeface.BOLD),
-                        0,
-                        formattedText.length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    resultString.setSpan(
-                        ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.dark_blue)),
-                        0,
-                        formattedText.length,
+                        startIndex,
+                        endIndex,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
 
-                    childTextView.text = resultString
+                    childTextView.text = spannableString
                 }
             } else {
                 // If there is no boldMarker, apply bold style to the entire text
@@ -896,18 +946,10 @@ class Liturgy : AppCompatActivity() {
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                spannableString.setSpan(
-                    ForegroundColorSpan(ContextCompat.getColor(this@Liturgy, R.color.black)),
-                    0,
-                    childText.length,
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-
                 childTextView.text = spannableString
             }
 
             return view
         }
-
     }
 }
