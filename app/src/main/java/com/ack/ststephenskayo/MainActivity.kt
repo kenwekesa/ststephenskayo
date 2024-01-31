@@ -14,13 +14,18 @@ class MainActivity : AppCompatActivity() {
         val guest_card = findViewById(R.id.guests_card) as CardView1
         val members_card = findViewById(R.id.members_card) as CardView1
         val liturgy_card = findViewById(R.id.liturgy_card) as CardView1
+        val hymn_card = findViewById(R.id.hymn_card) as CardView1
 
         guest_card.setOnClickListener()
         {
             val intent = Intent(this, GuestActivity::class.java)
             startActivity(intent)
         }
-
+        hymn_card.setOnClickListener()
+        {
+            val intent = Intent(this, Hymn::class.java)
+            startActivity(intent)
+        }
         members_card.setOnClickListener()
         {
             val intent = Intent(this, LoginActivity::class.java);

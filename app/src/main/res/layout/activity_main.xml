@@ -81,6 +81,21 @@
                     android:layout_gravity="center"
                     android:text="Guests" />
             </androidx.cardview.widget.CardView>
+            <androidx.cardview.widget.CardView
+                android:id="@+id/hymn_card"
+                android:layout_width="136dp"
+                android:layout_height="142dp"
+                android:layout_columnWeight="1"
+                android:layout_margin="4dp"
+                app:cardElevation="10dp">
+
+                <TextView
+                    android:id="@+id/hymn_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Hymn" />
+            </androidx.cardview.widget.CardView>
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/liturgy_card"

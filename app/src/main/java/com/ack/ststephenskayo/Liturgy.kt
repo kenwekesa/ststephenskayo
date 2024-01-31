@@ -825,7 +825,7 @@ private lateinit var expandableListView: ExpandableListView
 
         override fun getGroup(groupPosition: Int): Any {
             val item = dataList[groupPosition]
-            return "${item.title} ${item.article}"
+            return "${item.title} "
         }
 
         override fun getChild(groupPosition: Int, childPosition: Int): Any {
@@ -946,7 +946,7 @@ private lateinit var expandableListView: ExpandableListView
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                childTextView.text = spannableString
+                childTextView.text = spannableString.toString().replace("**","")
             }
 
             return view
