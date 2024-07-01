@@ -9,6 +9,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog as AD
 import androidx.compose.material.AlertDialog
@@ -39,13 +40,18 @@ import java.util.Calendar
 
 class Payment : AppCompatActivity() {
     lateinit var sharedPrefs:SharedPreferences
+    lateinit var paymentType:String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.setTitle("Record Payment")
         sharedPrefs = getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val usertype = sharedPrefs.getString("usertype", "") ?: ""
+
+        paymentType = intent.getStringExtra("paymentType").toString()
+
+        Toast.makeText(this, "Payment Type: $paymentType", Toast.LENGTH_LONG).show()
         setContent {
-            PaymentForm(context = this, usertype)
+            PaymentForm(context = this, usertype,paymentType)
         }
     }
 }
@@ -58,7 +64,7 @@ data class PaymentData(
 )
 
 @Composable
-fun PaymentForm(context: Context, usertype:String) {
+fun PaymentForm(context: Context, usertype:String, paymentType:String) {
     val paymentData = remember { PaymentData() }
     val showDialog = remember { mutableStateOf(false) }
     val userName = remember { mutableStateOf("") }
@@ -70,7 +76,7 @@ fun PaymentForm(context: Context, usertype:String) {
     val formattedDate = remember { mutableStateOf("") }
 
 
-
+    Toast.makeText(context, "Payment Type: $paymentType", Toast.LENGTH_LONG).show()
     val mYear: Int
     val mMonth: Int
     val mDay: Int
@@ -185,6 +191,7 @@ fun PaymentForm(context: Context, usertype:String) {
 
 
         if (showDialog.value) {
+
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
                 title = { Text("Confirm Payment") },
@@ -195,7 +202,8 @@ fun PaymentForm(context: Context, usertype:String) {
                         loading.value = true
 
                         try {
-                            if (usertype.equals("welfare_admin")) {
+
+                            if (paymentType == "welfare") {
                                 submitWelfarePayment(paymentData, context) { success ->
 
                                     if (success) {
@@ -207,7 +215,7 @@ fun PaymentForm(context: Context, usertype:String) {
                                         showPaymentFailureMessage(context)
                                     }
                                 }
-                            } else if (usertype.equals("twenty_admin")) {
+                            } else if (paymentType == "twenty") {
 
 
                                 submitTwentyPayment(paymentData, context) { success ->

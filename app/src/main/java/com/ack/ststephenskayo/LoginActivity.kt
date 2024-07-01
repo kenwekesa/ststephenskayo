@@ -160,11 +160,17 @@ class LoginViewModel : ViewModel() {
     private fun navigateToNextActivity(context: Context, usertype:String, user_activated:Boolean) {
         //val int = Intent()
         if(user_activated) {
-            if (usertype == "welfare_admin" || usertype == "twenty_admin" || usertype ==  "admin" || usertype == "secretary_admin") {
+            if (usertype == "welfare_admin" || usertype == "twenty_admin" || usertype ==  "admin" || usertype == "secretary_admin" || usertype == "super_admin") {
+
                 val intent = Intent(context, AdminActivity::class.java);
+                intent.putExtra("usertype", usertype)
                 context.startActivity(intent)
-            } else if (usertype == "member") {
+            }
+
+
+            else if (usertype == "member") {
                 val intent = Intent(context, MembersActivity::class.java);
+                intent.putExtra("usertype", usertype)
                 context.startActivity(intent)
             }
         }

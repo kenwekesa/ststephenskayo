@@ -23,7 +23,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <GridLayout
-        android:id="@+id/gridLayout"
+        android:id="@+id/menuGridLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -187,8 +187,38 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+<!--        <androidx.cardview.widget.CardView-->
+<!--            android:id="@+id/record_payment_card"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="120dp"-->
+<!--            android:layout_columnWeight="1"-->
+<!--            android:layout_margin="4dp"-->
+<!--            app:cardElevation="100dp">-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical">-->
+
+<!--                <ImageView-->
+<!--                    android:layout_width="32dp"-->
+<!--                    android:layout_height="32dp"-->
+<!--                    android:src="@drawable/payments" />-->
+
+<!--                <TextView-->
+<!--                    android:id="@+id/record_payment_text"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="Record payments"-->
+<!--                    android:textSize="10sp" />-->
+
+<!--            </LinearLayout>-->
+<!--        </androidx.cardview.widget.CardView>-->
         <androidx.cardview.widget.CardView
-            android:id="@+id/record_payment_card"
+            android:id="@+id/record_welfare_payment_card"
             android:layout_width="0dp"
             android:layout_height="120dp"
             android:layout_columnWeight="1"
@@ -207,12 +237,43 @@
                     android:src="@drawable/payments" />
 
                 <TextView
-                    android:id="@+id/record_payment_text"
+                    android:id="@+id/record_welfare_payment_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="Record payments"
+                    android:text="Record Welfare payments"
+                    android:textSize="10sp" />
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/record_twenty_payment_card"
+            android:layout_width="0dp"
+            android:layout_height="120dp"
+            android:layout_columnWeight="1"
+            android:layout_margin="4dp"
+            app:cardElevation="100dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:src="@drawable/payments" />
+
+                <TextView
+                    android:id="@+id/record_twenty_payment_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:text="Record 20 payments"
                     android:textSize="10sp" />
 
             </LinearLayout>
@@ -320,7 +381,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="91dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gridLayout">
+        app:layout_constraintTop_toBottomOf="@+id/menuGridLayout">
 
         <TextView
             android:id="@+id/birthday_wish_tv"

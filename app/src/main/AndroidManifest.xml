@@ -21,6 +21,9 @@
         android:theme="@style/Theme.StStephensKayo"
         tools:targetApi="31">
         <activity
+            android:name=".SuperActivity"
+            android:exported="false" />
+        <activity
             android:name=".HymnDetail"
             android:exported="false" />
         <activity
