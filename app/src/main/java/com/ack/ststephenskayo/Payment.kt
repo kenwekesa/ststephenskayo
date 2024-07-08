@@ -9,7 +9,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AlertDialog as AD
 import androidx.compose.material.AlertDialog
@@ -49,7 +48,7 @@ class Payment : AppCompatActivity() {
 
         paymentType = intent.getStringExtra("paymentType").toString()
 
-        Toast.makeText(this, "Payment Type: $paymentType", Toast.LENGTH_LONG).show()
+
         setContent {
             PaymentForm(context = this, usertype,paymentType)
         }
@@ -76,7 +75,7 @@ fun PaymentForm(context: Context, usertype:String, paymentType:String) {
     val formattedDate = remember { mutableStateOf("") }
 
 
-    Toast.makeText(context, "Payment Type: $paymentType", Toast.LENGTH_LONG).show()
+
     val mYear: Int
     val mMonth: Int
     val mDay: Int

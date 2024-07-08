@@ -105,13 +105,13 @@ class AdminActivity : AppCompatActivity() {
         twentyPaymentButton.setOnClickListener()
         {
             val payment_intent = Intent(this, Payment::class.java)
-            intent.putExtra("paymentType", "twenty")
+            payment_intent.putExtra("paymentType", "twenty")
             startActivity(payment_intent)
         }
         welfarePaymentButton.setOnClickListener()
         {
             val payment_intent = Intent(this, Payment::class.java)
-            intent.putExtra("paymentType", "welfare")
+            payment_intent.putExtra("paymentType", "welfare")
             startActivity(payment_intent)
         }
 
