@@ -137,6 +137,10 @@ class SignInViewModel : ViewModel() {
             .map { chars.random() }
             .joinToString("")
     }
+
+
+
+
     fun performSignIn() {
         // Check if the phone number is valid
         if (!isPhoneNumberValid(phoneNumber.value)) {
@@ -154,60 +158,159 @@ class SignInViewModel : ViewModel() {
             } else {
                 // User doesn't exist, proceed with registration
                 generateUniqueNumber { uniqueNumber ->
-                    try {
-                        val db = FirebaseFirestore.getInstance()
-                        val user = hashMapOf(
-                            // ... other user properties ...
+                    viewModelScope.launch {
+                        val numberExists = userNumberExists(uniqueNumber)
+                        if (numberExists) {
+                            submissionStatus.value = SubmissionStatus.ERROR
+                            submissionMessage.value = "Failed, try again"
+                            // If the number exists, generate a new one and try again
+//                            performSignIn()
+                        } else {
+                            try {
+                                val db = FirebaseFirestore.getInstance()
+                                val user = hashMapOf(
+                                    "firstName" to firstName.value,
+                                    "lastName" to lastName.value,
+                                    "fellowship" to fellowship.value,
+                                    "password" to phoneNumber.value,
+                                    "dateJoined" to dateJoined.value,
+                                    "phoneNumber" to phoneNumber.value,
+                                    "middleName" to middleName.value,
+                                    "birthDate" to birthDate.value,
+                                    "birthMonth" to birthMonth.value,
+                                    "openingWelfareBal" to openingWelBal.value,
+                                    "openingTwentyBal" to openingTwentyBal.value,
+                                    "fieldOfStudy" to fieldOfStudy.value,
+                                    "occupation" to occupation.value,
+                                    "total_welfare_paid" to 0,
+                                    "total_twenty_paid" to 0,
+                                    "usertype" to "member",
+                                    "memberNumber" to uniqueNumber
+                                )
 
+                                //Random String to make user document unique
+                                val randomString = generateRandomString()
 
-                            "firstName" to firstName.value,
-                            "lastName" to lastName.value,
-                            "fellowship" to fellowship.value,
-                            "password" to phoneNumber.value,
-                            "dateJoined" to dateJoined.value,
-                            "phoneNumber" to phoneNumber.value,
-                            "middleName" to middleName.value,
-                            "birthDate" to birthDate.value,
-                            "birthMonth" to birthMonth.value,
-                            "openingWelfareBal" to openingWelBal.value,
-                            "openingTwentyBal" to openingTwentyBal.value,
-                            "fieldOfStudy" to fieldOfStudy.value,
-                            "occupation" to occupation.value,
-                            "total_welfare_paid" to 0,
-                            "total_twenty_paid" to 0,
-                            "usertype" to "member",
-                            "memberNumber" to   uniqueNumber // Add unique number field
-                            // Add other fields as needed
-                        )
-
-                        //Random String to make user document unique
-                        val randomString = generateRandomString()
-
-
-                        db.collection("users")
-                            .document((firstName.value+"_"+middleName.value+"_"+lastName.value)+"_"+randomString.replace("__","_"))
-                            .set(user)
-                            .addOnSuccessListener { documentReference ->
-                                // Sign-in and data submission successful
-                                // Handle any necessary actions or navigate to the next screen
-                                updateLastUniqueNumber(uniqueNumber)
-                                submissionStatus.value = SubmissionStatus.SUCCESS
-                                submissionMessage.value = "Member added successfully!"
-                            }
-                            .addOnFailureListener { e ->
-                                // Sign-in and data submission failed
-                                // Handle error case and display appropriate message
+                                db.collection("users")
+                                    .document((firstName.value+"_"+middleName.value+"_"+lastName.value)+"_"+randomString.replace("__","_"))
+                                    .set(user)
+                                    .addOnSuccessListener {
+                                        // Sign-in and data submission successful
+                                        // Handle any necessary actions or navigate to the next screen
+                                        updateLastUniqueNumber(uniqueNumber)
+                                        submissionStatus.value = SubmissionStatus.SUCCESS
+                                        submissionMessage.value = "Member added successfully!"
+                                    }
+                                    .addOnFailureListener { e ->
+                                        // Sign-in and data submission failed
+                                        // Handle error case and display appropriate message
+                                        submissionStatus.value = SubmissionStatus.ERROR
+                                        submissionMessage.value = "Error occurred during submission."
+                                    }
+                            } catch (e: Exception) {
+                                // Error handling and logging
+                                Log.e("Signup", "Error submitting data: ${e.message}", e)
                                 submissionStatus.value = SubmissionStatus.ERROR
-                                submissionMessage.value = "Error occurred during submission."
+                                submissionMessage.value = "An unexpected error occurred."
                             }
-                    } catch (e: Exception) {
-                        // Error handling and logging
-                        Log.e("Signup", "Error submitting data: ${e.message}", e)
+                        }
                     }
                 }
             }
         }
     }
+
+    private suspend fun userNumberExists(memberNumber: String): Boolean {
+        val db = FirebaseFirestore.getInstance()
+        val usersCollection = db.collection("users")
+
+        return try {
+            val querySnapshot = usersCollection
+                .whereEqualTo("memberNumber", memberNumber)
+                .limit(1)  // Limit to 1 result for efficiency
+                .get()
+                .await()
+
+            !querySnapshot.isEmpty
+        } catch (e: Exception) {
+            Log.e("Signup", "Error checking user existence: ${e.message}", e)
+            // In case of an error, we assume the user might exist to be safe
+            true
+        }
+    }
+//    fun performSignIn() {
+//        // Check if the phone number is valid
+//        if (!isPhoneNumberValid(phoneNumber.value)) {
+//            submissionStatus.value = SubmissionStatus.ERROR
+//            submissionMessage.value = "Invalid phone number"
+//            return
+//        }
+//
+//        // Check if the user already exists with the same phone number
+//        viewModelScope.launch {
+//            val userAlreadyExists = userExists(phoneNumber.value)
+//            if (userAlreadyExists) {
+//                submissionStatus.value = SubmissionStatus.ERROR
+//                submissionMessage.value = "User with this phone number already exists"
+//            } else {
+//                // User doesn't exist, proceed with registration
+//                generateUniqueNumber { uniqueNumber ->
+//                    try {
+//
+//
+//                        val db = FirebaseFirestore.getInstance()
+//                        val user = hashMapOf(
+//                            // ... other user properties ...
+//
+//
+//                            "firstName" to firstName.value,
+//                            "lastName" to lastName.value,
+//                            "fellowship" to fellowship.value,
+//                            "password" to phoneNumber.value,
+//                            "dateJoined" to dateJoined.value,
+//                            "phoneNumber" to phoneNumber.value,
+//                            "middleName" to middleName.value,
+//                            "birthDate" to birthDate.value,
+//                            "birthMonth" to birthMonth.value,
+//                            "openingWelfareBal" to openingWelBal.value,
+//                            "openingTwentyBal" to openingTwentyBal.value,
+//                            "fieldOfStudy" to fieldOfStudy.value,
+//                            "occupation" to occupation.value,
+//                            "total_welfare_paid" to 0,
+//                            "total_twenty_paid" to 0,
+//                            "usertype" to "member",
+//                            "memberNumber" to   uniqueNumber // Add unique number field
+//                            // Add other fields as needed
+//                        )
+//
+//                        //Random String to make user document unique
+//                        val randomString = generateRandomString()
+//
+//
+//                        db.collection("users")
+//                            .document((firstName.value+"_"+middleName.value+"_"+lastName.value)+"_"+randomString.replace("__","_"))
+//                            .set(user)
+//                            .addOnSuccessListener { documentReference ->
+//                                // Sign-in and data submission successful
+//                                // Handle any necessary actions or navigate to the next screen
+//                                updateLastUniqueNumber(uniqueNumber)
+//                                submissionStatus.value = SubmissionStatus.SUCCESS
+//                                submissionMessage.value = "Member added successfully!"
+//                            }
+//                            .addOnFailureListener { e ->
+//                                // Sign-in and data submission failed
+//                                // Handle error case and display appropriate message
+//                                submissionStatus.value = SubmissionStatus.ERROR
+//                                submissionMessage.value = "Error occurred during submission."
+//                            }
+//                    } catch (e: Exception) {
+//                        // Error handling and logging
+//                        Log.e("Signup", "Error submitting data: ${e.message}", e)
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     private fun updateLastUniqueNumber(newUniqueNumber: String) {
         try {
@@ -324,6 +427,21 @@ class SignInViewModel : ViewModel() {
         }
     }
 
+//    private suspend fun userNumberExists(memberNumber: String): Boolean {
+//        val db = FirebaseFirestore.getInstance()
+//        val usersCollection = db.collection("users")
+//
+//        return try {
+//            val querySnapshot = usersCollection.whereEqualTo("memberNumber", memberNumber).get().await()
+//            !querySnapshot.isEmpty
+//        } catch (e: Exception) {
+//            Log.e("Signup", "Error checking user existence: ${e.message}", e)
+//            false
+//        }
+//    }
+
+
+
 
 
 
@@ -433,7 +551,7 @@ fun SignInView(viewModel: SignInViewModel = viewModel()) {
             .fillMaxSize()
             .padding(top = 12.dp, bottom = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-        
+
     ) {
         item{
         OutlinedTextField(
