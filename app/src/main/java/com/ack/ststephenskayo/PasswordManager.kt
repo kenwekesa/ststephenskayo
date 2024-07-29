@@ -707,7 +707,26 @@ fun PasswordManagerScreen(context: Context, usertype:String) {
 
             if (usertype == "super_admin") {
                 Button(
-                    onClick = { showRoleDropdown.value = !showRoleDropdown.value },
+                    onClick = {
+                        showRoleDropdown.value = !showRoleDropdown.value
+                        val phoneNumber = phoneNumberState.value
+
+                        scope.launch {
+                            val user = userRepository.getUserByPhoneNumber(phoneNumber)
+                            if (user != null) {
+                                showDialog.value = true
+                                dialogMessage.value =
+                                    "Confirm you want change user role of  ${
+                                        (user.firstName + " " + user.lastNamme).uppercase(
+                                            Locale.ROOT
+                                        )
+                                    }"
+                            } else {
+                                showNoUserMessage(context)
+                            }
+                        }
+
+                              },
                     modifier = Modifier.padding(top = 16.dp)
                 ) {
                     Text("Change Role")
@@ -768,10 +787,14 @@ fun PasswordManagerScreen(context: Context, usertype:String) {
             }
 
             if (showConfirmRoleChangeDialog.value) {
+                val phoneNumber = phoneNumberState.value
+
+
+
                 AlertDialog(
                     onDismissRequest = { showConfirmRoleChangeDialog.value = false },
                     title = { Text("Confirm Role Change") },
-                    text = { Text("Are you sure you want to change the role to ${selectedRole.value.replace("_", " ").capitalize(Locale.ROOT)}?") },
+                    text = { Text(dialogMessage.value+" to ${selectedRole.value.replace("_", " ").capitalize(Locale.ROOT)}?") },
                     confirmButton = {
                         Button(
                             onClick = {
